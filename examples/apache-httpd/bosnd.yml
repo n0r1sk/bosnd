@@ -1,0 +1,17 @@
+debug: true
+checkintervall: 10
+cmd:
+  start: ["httpd-foreground"]
+  reload: ["/usr/local/apache2/bin/apachectl", "graceful"]
+  processname: httpd
+templates:
+  sitesconf:
+    src: /bosnd/sites-templates/site.template
+    dst: /bosnd/sites-enabled/site.conf
+swarm:
+  certificate: /bosnd/certs
+  domainzone: test.domain
+  domainprefix: www
+  managerurl: https://<your swarm manager>:2376
+  networks:
+    - bosnd_net

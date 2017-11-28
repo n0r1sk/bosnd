@@ -1,0 +1,230 @@
+bosnd itself is distributed under the Apache Version 2.0, January 2004, license. A copy of this license is included as LICENSE file in the sourcecode.
+
+# go-winio The MIT License (MIT)
+"checksumSHA1": "o/3cn04KAiwC7NqNVvmfVTD+hgA=",
+"path": "github.com/Microsoft/go-winio",
+"revision": "78439966b38d69bf38227fbf57ac8a6fee70f69a",
+"revisionTime": "2017-08-04T20:09:54Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "Gj+xR1VgFKKmFXYOJMnAczC3Znk=",
+"path": "github.com/docker/distribution/digestset",
+"revision": "e5b5e44386f7964a1f010a2b8b7687d073215bbb",
+"revisionTime": "2017-11-09T22:49:04Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "2Fe4D6PGaVE2he4fUeenLmhC1lE=",
+"path": "github.com/docker/distribution/reference",
+"revision": "e5b5e44386f7964a1f010a2b8b7687d073215bbb",
+"revisionTime": "2017-11-09T22:49:04Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "s2aRO7Ze3JVu//9FeJ4FrCFahDM=",
+"path": "github.com/docker/docker/api",
+"revision": "97be2a075225945ca7b92d75f85048cfd05a3a71",
+"revisionTime": "2017-11-10T15:26:42Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "HoN/78ovv3/DC+kDKF7IENEc40g=",
+"path": "github.com/docker/docker/api/types",
+"revision": "97be2a075225945ca7b92d75f85048cfd05a3a71",
+"revisionTime": "2017-11-10T15:26:42Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "jVJDbe0IcyjoKc2xbohwzQr+FF0=",
+"path": "github.com/docker/docker/api/types/blkiodev",
+"revision": "97be2a075225945ca7b92d75f85048cfd05a3a71",
+"revisionTime": "2017-11-10T15:26:42Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "uhgObLWZ3XZE8mdf6ovciqBgljQ=",
+"path": "github.com/docker/docker/api/types/container",
+"revision": "97be2a075225945ca7b92d75f85048cfd05a3a71",
+"revisionTime": "2017-11-10T15:26:42Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "XDP7i6sMYGnUKeFzgt+mFBJwjjw=",
+"path": "github.com/docker/docker/api/types/events",
+"revision": "97be2a075225945ca7b92d75f85048cfd05a3a71",
+"revisionTime": "2017-11-10T15:26:42Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "S4SWOa0XduRd8ene8Alwih2Nwcw=",
+"path": "github.com/docker/docker/api/types/filters",
+"revision": "97be2a075225945ca7b92d75f85048cfd05a3a71",
+"revisionTime": "2017-11-10T15:26:42Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "yeB781yxPhnN6OXQ9/qSsyih3ek=",
+"path": "github.com/docker/docker/api/types/image",
+"revision": "97be2a075225945ca7b92d75f85048cfd05a3a71",
+"revisionTime": "2017-11-10T15:26:42Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "uJeLBKpHZXP+bWhXP4HhpyUTWYI=",
+"path": "github.com/docker/docker/api/types/mount",
+"revision": "97be2a075225945ca7b92d75f85048cfd05a3a71",
+"revisionTime": "2017-11-10T15:26:42Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "Gskp+nvbVe8Gk1xPLHylZvNmqTg=",
+"path": "github.com/docker/docker/api/types/network",
+"revision": "97be2a075225945ca7b92d75f85048cfd05a3a71",
+"revisionTime": "2017-11-10T15:26:42Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "r2vWq7Uc3ExKzMqYgH0b4AKjLKY=",
+"path": "github.com/docker/docker/api/types/registry",
+"revision": "97be2a075225945ca7b92d75f85048cfd05a3a71",
+"revisionTime": "2017-11-10T15:26:42Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "VTxWyFud/RedrpllGdQonVtGM/A=",
+"path": "github.com/docker/docker/api/types/strslice",
+"revision": "97be2a075225945ca7b92d75f85048cfd05a3a71",
+"revisionTime": "2017-11-10T15:26:42Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "Q0U3queMsCw+rPPztXnRHwAxQEc=",
+"path": "github.com/docker/docker/api/types/swarm",
+"revision": "97be2a075225945ca7b92d75f85048cfd05a3a71",
+"revisionTime": "2017-11-10T15:26:42Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "mi8EDCDjtrZEONRXPG7VHJosDwY=",
+"path": "github.com/docker/docker/api/types/swarm/runtime",
+"revision": "97be2a075225945ca7b92d75f85048cfd05a3a71",
+"revisionTime": "2017-11-10T15:26:42Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "77axKFOjRx1nGrzIggGXfTxUYVQ=",
+"path": "github.com/docker/docker/api/types/time",
+"revision": "97be2a075225945ca7b92d75f85048cfd05a3a71",
+"revisionTime": "2017-11-10T15:26:42Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "uDPQ3nHsrvGQc9tg/J9OSC4N5dQ=",
+"path": "github.com/docker/docker/api/types/versions",
+"revision": "97be2a075225945ca7b92d75f85048cfd05a3a71",
+"revisionTime": "2017-11-10T15:26:42Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "IBJy2zPEnYmcFJ3lM1eiRWnCxTA=",
+"path": "github.com/docker/docker/api/types/volume",
+"revision": "97be2a075225945ca7b92d75f85048cfd05a3a71",
+"revisionTime": "2017-11-10T15:26:42Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "yeXlQUvoOI9OE0DmBAcL3NBNLF8=",
+"path": "github.com/docker/docker/client",
+"revision": "97be2a075225945ca7b92d75f85048cfd05a3a71",
+"revisionTime": "2017-11-10T15:26:42Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "JbiWTzH699Sqz25XmDlsARpMN9w=",
+"path": "github.com/docker/go-connections/nat",
+"revision": "3ede32e2033de7505e6500d6c868c2b9ed9f169d",
+"revisionTime": "2017-06-23T20:36:43Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "jUfDG3VQsA2UZHvvIXncgiddpYA=",
+"path": "github.com/docker/go-connections/sockets",
+"revision": "3ede32e2033de7505e6500d6c868c2b9ed9f169d",
+"revisionTime": "2017-06-23T20:36:43Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "c6lDGNwTm5mYq18IHP+lqYpk8xU=",
+"path": "github.com/docker/go-connections/tlsconfig",
+"revision": "3ede32e2033de7505e6500d6c868c2b9ed9f169d",
+"revisionTime": "2017-06-23T20:36:43Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "UmXGieuTJQOzJPspPJTVKKKMiUA=",
+"path": "github.com/docker/go-units",
+"revision": "0dadbb0345b35ec7ef35e228dabb8de89a65bf52",
+"revisionTime": "2017-01-27T09:51:30Z"
+
+# Copyright (c) 2013, The GoGo Authors. All rights reserved.
+"checksumSHA1": "wn2shNJMwRZpvuvkf1s7h0wvqHI=",
+"path": "github.com/gogo/protobuf/proto",
+"revision": "616a82ed12d78d24d4839363e8f3c5d3f20627cf",
+"revisionTime": "2017-11-09T18:15:19Z"
+
+# DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE Version 2, December 2004 
+"checksumSHA1": "uopGHAunQn3o9PC8yAfOfrmdn10=",
+"path": "github.com/logrusorgru/aurora",
+"revision": "b9c3722b64a1976e0624448ee7f5a0744b8cf629",
+"revisionTime": "2017-08-18T11:33:00Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "OFNit1Qx2DdWhotfREKodDNUwCM=",
+"path": "github.com/opencontainers/go-digest",
+"revision": "279bed98673dd5bef374d3b6e4b09e2af76183bf",
+"revisionTime": "2017-06-07T19:53:33Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "ZGlIwSRjdLYCUII7JLE++N4w7Xc=",
+"path": "github.com/opencontainers/image-spec/specs-go",
+"revision": "89b51c794e9113108a2914e38e66c826a649f2b5",
+"revisionTime": "2017-11-03T11:36:04Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "jdbXRRzeu0njLE9/nCEZG+Yg/Jk=",
+"path": "github.com/opencontainers/image-spec/specs-go/v1",
+"revision": "89b51c794e9113108a2914e38e66c826a649f2b5",
+"revisionTime": "2017-11-03T11:36:04Z"
+
+# Copyright (c) 2015, Dave Cheney <dave@cheney.net>
+"checksumSHA1": "rJab1YdNhQooDiBWNnt7TLWPyBU=",
+"path": "github.com/pkg/errors",
+"revision": "f15c970de5b76fac0b59abb32d62c17cc7bed265",
+"revisionTime": "2017-10-18T19:55:50Z"
+
+#The MIT License (MIT)
+"checksumSHA1": "BYvROBsiyAXK4sq6yhDe8RgT4LM=",
+"path": "github.com/sirupsen/logrus",
+"revision": "89742aefa4b206dcf400792f3bd35b542998eb3b",
+"revisionTime": "2017-08-22T13:27:46Z"
+
+# Copyright (c) 2009 The Go Authors. All rights reserved.
+"checksumSHA1": "5Yb2z6UO+Arm/TEd+OEtdnwOt1A=",
+"path": "golang.org/x/crypto/ssh/terminal",
+"revision": "6a293f2d4b14b8e6d3f0539e383f6d0d30fce3fd",
+"revisionTime": "2017-09-25T11:22:06Z"
+
+Copyright (c) 2009 The Go Authors. All rights reserved.
+"checksumSHA1": "GtamqiJoL7PGHsN454AoffBFMa8=",
+"path": "golang.org/x/net/context",
+"revision": "a337091b0525af65de94df2eb7e98bd9962dcbe2",
+"revisionTime": "2016-10-09T20:39:03Z"
+
+Copyright (c) 2009 The Go Authors. All rights reserved.
+"checksumSHA1": "WHc3uByvGaMcnSoI21fhzYgbOgg=",
+"path": "golang.org/x/net/context/ctxhttp",
+"revision": "a337091b0525af65de94df2eb7e98bd9962dcbe2",
+"revisionTime": "2016-10-09T20:39:03Z"
+
+Copyright (c) 2009 The Go Authors. All rights reserved.
+"checksumSHA1": "r9l4r3H6FOLQ0c2JaoXpopFjpnw=",
+"path": "golang.org/x/net/proxy",
+"revision": "a337091b0525af65de94df2eb7e98bd9962dcbe2",
+"revisionTime": "2016-10-09T20:39:03Z"
+
+Copyright (c) 2009 The Go Authors. All rights reserved.
+"checksumSHA1": "r1jWq0V3AI5DLN0aCnXXMH/is9Q=",
+"path": "golang.org/x/sys/unix",
+"revision": "1e2299c37cc91a509f1b12369872d27be0ce98a6",
+"revisionTime": "2017-11-09T13:50:42Z"
+
+Copyright (c) 2009 The Go Authors. All rights reserved.
+"checksumSHA1": "ck5uxoEeMDUL/QqPvGvBmcbsJzg=",
+"path": "golang.org/x/sys/windows",
+"revision": "1e2299c37cc91a509f1b12369872d27be0ce98a6",
+"revisionTime": "2017-11-09T13:50:42Z"
+
+# Apache Version 2.0, January 2004
+"checksumSHA1": "RDJpJQwkF012L6m/2BJizyOksNw=",
+"path": "gopkg.in/yaml.v2",
+"revision": "eb3733d160e74a9c7e442f435eb3bea458e1d19f",
+"revisionTime": "2017-08-12T16:00:11Z"
+

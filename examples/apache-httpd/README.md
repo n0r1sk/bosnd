@@ -105,6 +105,10 @@ The site template uses the Golang template language. Please look into the offica
 {{.Services}}
 ```
 
+## docker-swarm.yml
+
+**Important:** Label your service correctly to resolve them in the template!
+
 And now, happy hacking.
 
 

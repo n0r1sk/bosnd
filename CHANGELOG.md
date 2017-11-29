@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [v0.1] - 2017-11-29
 ### Added
-- Initial load of the repositor
+- Initial load of the repository
 
 ### Changed
 

@@ -45,7 +45,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
-	. "github.com/logrusorgru/aurora"
+	"github.com/logrusorgru/aurora"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -110,7 +110,7 @@ func startprocess(config *Config) {
 	err := cmd.Start()
 
 	if err != nil {
-		log.Warn(Cyan(err.Error()))
+		log.Warn(aurora.Cyan(err.Error()))
 	}
 	ctrlcmd = cmd
 
@@ -118,7 +118,7 @@ func startprocess(config *Config) {
 	time.Sleep(time.Duration(250) * time.Millisecond)
 	ok := isprocessrunningps(config)
 	if ok == true {
-		log.Info(Green("Process started"))
+		log.Info(aurora.Green("Process started"))
 	}
 }
 
@@ -127,7 +127,7 @@ func reloadprocess(config *Config) {
 	cmd := exec.Command(config.Cmd.Reload[0], config.Cmd.Reload[1:]...)
 	err := cmd.Start()
 	if err != nil {
-		log.Warn(Cyan(err.Error()))
+		log.Warn(aurora.Cyan(err.Error()))
 	}
 	cmd.Wait()
 	isprocessrunningps(config)
@@ -175,11 +175,11 @@ func writeconfig(config *Config) (changed bool) {
 
 		// comapre md5 and write config if needed
 		if md5tpl == md5exconf {
-			log.Info(Green("MD5 sums of " + v.Src + " equal! Nothing to do."))
+			log.Info(aurora.Green("MD5 sums of " + v.Src + " equal! Nothing to do."))
 			continue
 		}
 
-		log.Info(Brown("MD5 sums of  " + v.Src + " different writing new conf!"))
+		log.Info(aurora.Brown("MD5 sums of  " + v.Src + " different writing new conf!"))
 
 		// overwrite existing conf
 		err = ioutil.WriteFile(v.Dst, []byte(tpl.String()), 0644)
@@ -385,7 +385,7 @@ func main() {
 	configfile = parsecmdline()
 	config, ok := ReadConfigfile(configfile)
 	if !ok {
-		log.Warn(Red("Error during config parsing, yet continuing!"))
+		log.Warn(aurora.Red("Error during config parsing, yet continuing!"))
 	}
 
 	// set check intervall from config
@@ -420,9 +420,9 @@ func main() {
 
 	for mainloop == true {
 		// reread config file
-		ok := ReReadConfigFile(configfile, config)
+		ok := ReReadConfigfile(configfile, config)
 		if !ok {
-			log.Warn(Red("Error during config parsing, yet continuing!"))
+			log.Warn(aurora.Red("Error during config parsing, yet continuing!"))
 			time.Sleep(time.Duration(config.Checkintervall) * time.Second)
 			continue
 		}
@@ -432,7 +432,7 @@ func main() {
 		err := getservicesofnet(config)
 		if err != nil {
 			log.Debug(err)
-			log.Warn(Red("Error during retrieving information: " + err.Error()))
+			log.Warn(aurora.Red("Error during retrieving information: " + err.Error()))
 			time.Sleep(time.Duration(config.Checkintervall) * time.Second)
 			continue
 		}

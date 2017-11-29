@@ -25,18 +25,21 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Recordsets A map of Recordsets as described by PowerDNS
 type Recordsets struct {
 	Rrsets []*Recordset `json:"rrsets"`
 }
 
+// Recordset A Recordset as described by PowerDNS
 type Recordset struct {
 	Name       string   `json:"name"`
 	Type       string   `json:"type"`
-	Ttl        int      `json:"ttl"`
+	TTL        int      `json:"ttl"`
 	Changetype string   `json:"changetype"`
 	Records    []Record `json:"records"`
 }
 
+// Record A Record as described by PowerDNS
 type Record struct {
 	Content  string `json:"content"`
 	Disabled bool   `json:"disabled"`
@@ -46,7 +49,7 @@ func recordsetstojson(data Recordsets) []byte {
 
 	// set time to live to 10 if not set
 	for _, e := range data.Rrsets {
-		p := &e.Ttl
+		p := &e.TTL
 		if *p == 0 {
 			*p = 10
 		}
@@ -62,13 +65,13 @@ func recordsetstojson(data Recordsets) []byte {
 
 }
 
-func recordsetsreplace(api_url string, api_key string, domain_zone string, data Recordsets) {
+func recordsetsreplace(apiurl string, apikey string, domainzone string, data Recordsets) {
 	s := recordsetstojson(data)
 
 	log.Debug(string(s[:]))
 
-	req, err := http.NewRequest("PATCH", api_url+"/"+domain_zone+".", bytes.NewBuffer(s))
-	req.Header.Set("X-API-Key", api_key)
+	req, err := http.NewRequest("PATCH", apiurl+"/"+domainzone+".", bytes.NewBuffer(s))
+	req.Header.Set("X-API-Key", apikey)
 
 	if err != nil {
 		log.Warn(err)

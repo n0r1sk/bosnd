@@ -23,6 +23,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// ReadConfigfile reads the configfile given by the path as string and returns the config object
 func ReadConfigfile(configfile string) (*Config, bool) {
 	cfgdata, err := ioutil.ReadFile(configfile)
 
@@ -41,7 +42,8 @@ func ReadConfigfile(configfile string) (*Config, bool) {
 	return &t, true
 }
 
-func ReReadConfigFile(configfile string, config *Config) bool {
+// ReReadConfigfile rereads the configfile from path and refreshes the config object
+func ReReadConfigfile(configfile string, config *Config) bool {
 	cfgdata, err := ioutil.ReadFile(configfile)
 
 	if err != nil {

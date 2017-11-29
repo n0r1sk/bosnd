@@ -89,17 +89,17 @@ The ```bosnd.yml``` file is, where the magic happens. First, there is the ```deb
 Name:   sleep
 ```
 
-The ```templates``` block is used to specify one or more(!) template sources and destinations. A template is read from src, processed with the Docker swarm information and then written to the destination file. **Again, you can specify multiple files if needed** For example, if you want to configure Apache httpd with modJK you can add an additional template file for the workers.properties.
+The ```templates``` block is used to specify one or more(!) template sources and destinations. A template is read from src, processed with the Docker swarm information and then written to the destination file. **Again, you can specify multiple files if needed**. For example, if you want to configure Apache httpd with modJK, you can add an additional template file for the workers.properties.
 
-The ```swarm``` block will configure your access to the Docker Swarm API and what information you would like to retrieve. ```certificate``` is used as path to your Docker Swarm API client certificate. By specifying ```domainzone``` and ```domainprefix``` you can add your domain information to the configuration to access it alter in the template.
+The ```swarm``` block will configure your access to the Docker Swarm API and what information you would like to retrieve. ```certificate``` is used as path to your Docker Swarm API client certificate. By specifying ```domainzone``` and ```domainprefix``` you can add your domain information to the configuration to access it later in the template.
 
 ```managerurl``` is the one of the important ones. Please specify a DNS name. Best case, specify a DNS name with multiple A-records for DNS round robin your managers! The ```bosnd``` will try endlessly to get a connection to the ```managerurl```.
 
-The second important one is ```networks```. Specify one ore more Docker network names, where your services are started and the ```bosnd``` has access to. ```bosnd``` will retrieve all informaiton and lated you will use this information int the template file.
+The second important one is ```networks```. Specify one ore more Docker network names, where your services are started and the ```bosnd``` has access to. ```bosnd``` will retrieve all information and later you will use this information in the template file.
 
 ## site.template
 
-The site template uses the Golang template language. Please look into the offical documentation, how and why this works. One sentence: The Golang template language is extremply powerful but,  not easy to understand. The map used for the data is documented in the ```types.go``` file in the source code. If you would like to see what you have just copy the followin into the template. It might not start your service, but in the destination file you can see the whole data structure!
+The site template uses the Golang template language. Please look into the offical documentation, how and why this works. One sentence: The Golang template language is extremely powerful but not that easy to understand. The map used for the data is documented in the ```types.go``` file in the source code. If you would like to see what you have, just copy the following into the template. It might not start your service, but in the destination file you can see the whole data structure!
 
 ```
 {{.Services}}
@@ -107,7 +107,7 @@ The site template uses the Golang template language. Please look into the offica
 
 ## docker-swarm.yml
 
-**Important:** Label your service correctly to resolve them in the template!
+**Important:** Label your service(s) correctly to resolve them in the template!
 
 And now, happy hacking.
 

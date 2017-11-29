@@ -1,4 +1,5 @@
 debug: true
+debugport: 6060
 checkintervall: 10
 cmd:
   start: ["httpd-foreground"]
@@ -15,3 +16,6 @@ swarm:
   managerurl: https://<your swarm manager>:2376
   networks:
     - bosnd_net
+prometheus:
+  start: true
+  listenport: 9000

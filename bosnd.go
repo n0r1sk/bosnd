@@ -46,6 +46,10 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
 	"github.com/logrusorgru/aurora"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -53,6 +57,13 @@ var mainloop bool
 var ctrlcmd *exec.Cmd
 var dockerclient *client.Client
 var configfile string
+
+var configReloads = prometheus.NewCounter(
+	prometheus.CounterOpts{
+		Name: "bosnd_service_configuration_reloads",
+		Help: "The count of the configuration reloads since start.",
+	},
+)
 
 func isprocessrunningps(config *Config) (running bool) {
 	// get all folders from proc filesystem
@@ -369,6 +380,14 @@ func parsecmdline() string {
 	return *c
 }
 
+func prom(config *Config) {
+	prometheus.MustRegister(configReloads)
+
+	flag.Parse()
+	http.Handle("/metrics", promhttp.Handler())
+	log.Fatal(http.ListenAndServe("0.0.0.0:"+config.Prometheus.Listenport, nil))
+}
+
 func main() {
 
 	// ignore all signals of child, the kernel will clean them up, no zombies
@@ -397,15 +416,20 @@ func main() {
 	if config.Debug == true {
 		log.SetLevel(log.DebugLevel)
 		go func() {
-			log.Println(http.ListenAndServe("0.0.0.0:6060", nil))
+			log.Println(http.ListenAndServe("0.0.0.0:"+config.Debugport, nil))
 		}()
 	}
 
 	log.Debug("Configfile Keys and Values: ", config)
 
-	// check if pdns configuration is enabled
+	// check if PDNS configuration is enabled
 	if config.Pdns.Apikey != "" {
 		updatepdns(*config)
+	}
+
+	// check if Prometheus is enabled
+	if config.Prometheus.Start == true {
+		go prom(config)
 	}
 
 	// get docker client for swarm
@@ -443,8 +467,10 @@ func main() {
 		if changed == true {
 			if isprocessrunningps(config) {
 				reloadprocess(config)
+				configReloads.Inc()
 			} else {
 				startprocess(config)
+				configReloads.Inc()
 			}
 		} else {
 			if !isprocessrunningps(config) {

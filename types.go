@@ -43,6 +43,7 @@ type Configfilepair struct {
 // Config Defines the main config struct and also holds the data for the templating
 type Config struct {
 	Debug          bool
+	Debugport      string
 	Checkintervall int64
 	Cmd            struct {
 		Start       []string
@@ -64,5 +65,9 @@ type Config struct {
 		Managerurl   string
 		Services     *[]Service
 		Networks     []string
+	}
+	Prometheus struct {
+		Start      bool
+		Listenport string
 	}
 }

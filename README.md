@@ -35,7 +35,7 @@ Please define real time. Real time in computing is, when you can guarantee a sys
 
 ## Examples
 
-You can find various run examples in the ```examples``` folder in the source code directory. You will have to run a command like ```./Bosnd -c <myBosndconfigfile>```. The ```Bosnd``` example configuration files are located within the example directories, including a Dockerfile and so on. Most of the examples will include a ```demo.sh``` file, which will help you to get used to the idea of the ```Bosnd```. The example directories will include a ```README.md``` too, read it! You can find a lot of information there.
+You can find various run examples in the ```examples``` (like our first one: [apache-httpd](https://github.com/n0r1sk/bosnd/tree/master/examples/apache-httpd)) folder in the source code directory. You will have to run a command like ```./Bosnd -c <myBosndconfigfile>```. The ```Bosnd``` example configuration files are located within the example directories, including a Dockerfile and so on. Most of the examples will include a ```demo.sh``` file, which will help you to get used to the idea of the ```Bosnd```. The example directories will include a ```README.md``` too, read it! You can find a lot of information there.
 
 ## Template files
 

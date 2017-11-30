@@ -9,9 +9,9 @@ Bosnd, the boatswain daemon. Dynamic, Docker Swarm based configuration file temp
 ## Features
 
 - Mutliple configuration templates
-- Useable with any daemon binary
-- Automatically reload the daemon (is supported by the daemon) on every change
-- Reconfigurable during the runtime
+- Usable with any daemon binary
+- Automatically reload the daemon on every change (if supported by the daemon) 
+- Reconfigurable during runtime
 - Recognises new Docker stack services which are appearing on the Docker network on the fly
 - Add new Docker networks to the Bosnd on the fly
 - Optional switchable PDNS support for publishing the linked ip-address on the fly

@@ -63,7 +63,7 @@ bosnd_service_configuration_reloads 0
 
 ## PDNS
 
-The PDNS implementation can be used to create an DNS A-record based on the configured parameters inside the ```Bosnd```. This enables you to move the ```Bosnd``` driven service from one ip-address to another. It is not fully perfect at the moment but usable. Replace the values enclosed by ```<>``` with your needs. Here is the ```bosnd.yml``` configuraion block.
+The PDNS implementation can be used to create an DNS A-record based on the configured parameters inside the ```Bosnd```. This enables you to move the ```Bosnd``` driven service from one ip-address to another. It is not fully perfect at the moment but usable. Replace the values enclosed by ```<>``` with your needs. Here is the ```bosnd.yml``` configuration block.
 
 ```
 pdns:

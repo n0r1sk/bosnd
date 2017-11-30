@@ -37,6 +37,16 @@ Please define real time. Real time in computing is, when you can guarantee a sys
 
 You can find various run examples in the ```examples``` (like our first one: [apache-httpd](https://github.com/n0r1sk/bosnd/tree/master/examples/apache-httpd)) folder in the source code directory. You will have to run a command like ```./Bosnd -c <myBosndconfigfile>```. The ```Bosnd``` example configuration files are located within the example directories, including a Dockerfile and so on. Most of the examples will include a ```demo.sh``` file, which will help you to get used to the idea of the ```Bosnd```. The example directories will include a ```README.md``` too, read it! You can find a lot of information there.
 
+## Docker certificates
+For now the Docker CA certificate, the client certificate & client key files need to be exactly named as ```ca.pem```, ```client.pem``` & ```key.pem``` in the Docker certificate folder. Only this folder is configurable via the ```bosnd.yml```.
+
+For example:
+```
+swarm:
+  certificate: /docker/certs
+```
+In the next release ([see this issue](https://github.com/n0r1sk/bosnd/issues/1)) you will be able to define those three files in the ```bosnd.yml``` separately.
+
 ## Template files
 
 The template files are working with the [Golang template language](https://golang.org/pkg/text/template/).

@@ -21,7 +21,7 @@ else
 fi
 ```
 
-If you forget to place the client certificate for the Docker Swarm interface into the ```certs``` folder, the script will terminate. We decided to use the client certificate solution to secure the Docker API interface, as it is well documented. The ```bosnd``` is only working if you are running the Docker API interface TLS secured. No compromise here. If you don't like it, feel free to fork the project and change the code for your needs.
+If you forget to place the client certificate for the Docker Swarm interface into the ```certs``` folder, the script will terminate. We decided to use the client certificate solution to secure the Docker API interface, as it is well documented. The ```Bosnd``` is only working if you are running the Docker API interface TLS secured. No compromise here. If you don't like it, feel free to fork the project and change the code for your needs.
 
 ```
 if [ "$(ls -A certs)" ]; then
@@ -32,7 +32,7 @@ else
 fi
 ```
 
-Next, we copy the ```bosnd``` binary to the Docker build directory. This is, where the ```demo.sh``` is located, next to this ```README.md```
+Next, we copy the ```Bosnd``` binary to the Docker build directory. This is, where the ```demo.sh``` is located, next to this ```README.md```
 
 ```
 cp ../../bosnd .
@@ -44,7 +44,7 @@ And the next line will trigger the docker build. The resulting Docker image is t
 docker build . -t bosnd-httpd:1.0
 ```
 
-After the build, we remove the ```bosnd``` binary which we copied in the step before the build to not mess up our build folder.
+After the build, we remove the ```Bosnd``` binary which we copied in the step before the build to not mess up our build folder.
 
 ```
 rm bosnd
@@ -76,11 +76,11 @@ docker stack rm bosnd
 
 The Dockerfile is pretty straight forward. There are some sed's in there to change the httpd.conf file to enable the modules needed for the ```ProxyPass``` functionality. Then the ```sites-template``` and the ```bosnd.yml``` configuration files are copied into the new image.
 
-In the last step, the ```CMD``` will be changed to start the ```bosnd``` instead of the ```httpd```. Then ```httpd``` will later be configured, started and controlled through the ```bosnd```.
+In the last step, the ```CMD``` will be changed to start the ```bosnd``` instead of the ```httpd```. Then ```httpd``` will later be configured, started and controlled through the ```Bosnd```.
 
 ## bosnd.yml
 
-The ```bosnd.yml``` file is, where the magic happens. First, there is the ```debug``` switch which enables the debug mode. The ```cmd``` block is used to configure the binary which should be controlled by the ```bosnd```. The ```start``` and ```reload``` parameters take string arrays as values. **Important:** You have to specify the ```processname``` which you can find in the ```proc``` filesystem. Golang has no build in feature to find the process. Just start your controlled binary, get the process number and look for the status information on it in the ```proc``` filesystem. Here is a small example how you can achieve this. The value of the ```Name:```.
+The ```bosnd.yml``` file is, where the magic happens. First, there is the ```debug``` switch which enables the debug mode. The ```cmd``` block is used to configure the binary which should be controlled by the ```Bosnd```. The ```start``` and ```reload``` parameters take string arrays as values. **Important:** You have to specify the ```processname``` which you can find in the ```proc``` filesystem. Golang has no build in feature to find the process. Just start your controlled binary, get the process number and look for the status information on it in the ```proc``` filesystem. Here is a small example how you can achieve this. The value of the ```Name:```.
 
 ```
 # sleep 1000 &
@@ -93,9 +93,9 @@ The ```templates``` block is used to specify one or more(!) template sources and
 
 The ```swarm``` block will configure your access to the Docker Swarm API and what information you would like to retrieve. ```certificate``` is used as path to your Docker Swarm API client certificate. By specifying ```domainzone``` and ```domainprefix``` you can add your domain information to the configuration to access it later in the template.
 
-```managerurl``` is the one of the important ones. Please specify a DNS name. Best case, specify a DNS name with multiple A-records for DNS round robin your managers! The ```bosnd``` will try endlessly to get a connection to the ```managerurl```.
+```managerurl``` is the one of the important ones. Please specify a DNS name. Best case, specify a DNS name with multiple A-records for DNS round robin your managers! The ```Bosnd``` will try endlessly to get a connection to the ```managerurl```.
 
-The second important one is ```networks```. Specify one ore more Docker network names, where your services are started and the ```bosnd``` has access to. ```bosnd``` will retrieve all information and later you will use this information in the template file.
+The second important one is ```networks```. Specify one ore more Docker network names, where your services are started and the ```Bosnd``` has access to. ```Bosnd``` will retrieve all information and later you will use this information in the template file.
 
 ## site.template
 

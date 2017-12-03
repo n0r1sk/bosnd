@@ -17,3 +17,6 @@ worker.{{$ep.Hostname}}.lbfactor=1
 {{end}}
 # --------------------------------
 {{end}}
+
+# JKSTATUS
+ worker.jkstatus.type=status

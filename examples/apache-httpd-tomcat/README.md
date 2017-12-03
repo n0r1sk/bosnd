@@ -8,11 +8,13 @@
 
 After the stack has started, click on the **80** visible in the PWD ui. This will open a new browser tab. There you will see the **It work's** text from the Apache httpd. This is perfect, as it shows that the Apache httpd has started. Now append the following to the url in the browser window: ```/demo/versiontest.jsp```. This will open the demo webapplication from the Apache Tomcat which we have included. It will show your session id. If you open up a second, **independed** alternative browser and paste the url from the first one, you will get a new session there. Now refresh the page. You will notice, that you stay in the same session. Voila!
 
-The Docker stack will start the ```Bosnd``` prepared Apache httpd and two additional Apache Tomcat workers. It will configure itself flawlessly! Scale the ```docker service scale pwd_tomcat=4``` and see the magic!
+The Docker stack will start the ```Bosnd``` prepared Apache httpd and two additional Apache Tomcat workers. It will configure itself flawlessly! Scale the ```docker service scale pwd_tomcat=4``` and see the magic! Add ```/jkmanager``` to the url in the browser to access the jkstatus page of the ```mod_jk``` module. After a few seconds, the additional worker will come up! (see screenshot 2)
 
-## Screenshot
+## Screenshots
 
 ![screenshot](https://raw.githubusercontent.com/n0r1sk/bosnd/master/examples/apache-httpd-tomcat/screenshot.jpg)
+
+![screenshot](https://raw.githubusercontent.com/n0r1sk/bosnd/master/examples/apache-httpd-tomcat/screenshot2.jpg)
 
 # The anatomy
 

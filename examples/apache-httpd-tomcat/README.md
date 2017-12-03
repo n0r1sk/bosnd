@@ -1,5 +1,7 @@
 # Demo
 
+**Conclusion: This is for demo purpose only! Do not use it this way in production!**
+
 # PWD Play with docker
 
 [![Try in PWD](https://cdn.rawgit.com/play-with-docker/stacks/cff22438/assets/images/button.png)](http://play-with-docker.com/?stack=https://gist.githubusercontent.com/kleinsasserm/abddc8d17137a916e4414a25c997da4a/raw/8c72e4a7a81020e1f010797b17fa6cdf12292b98/teststack.yml)
@@ -9,9 +11,6 @@ After the stack has started, click on the **80** visible in the PWD ui. This wil
 ## Screenshot
 
 ![screenshot](https://raw.githubusercontent.com/n0r1sk/bosnd/master/examples/apache-httpd-tomcat/screenshot.jpg)
-
-
-**Conclusion: This is for demo purpose only! Do not use it this way in production!**
 
 # The anatomy
 

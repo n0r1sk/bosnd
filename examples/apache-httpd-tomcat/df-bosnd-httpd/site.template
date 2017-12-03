@@ -10,5 +10,8 @@ JkShmFile     /var/log/mod_jk.shm
   JkMount {{index $entry.Labels "context"}}/* {{$entry.Name}}lb
   {{end}}
   {{end}}
+  
+  JkMount /jkmanager jkstatus
+  JkMount /jkmanager/* jkstatus
 
 </VirtualHost>

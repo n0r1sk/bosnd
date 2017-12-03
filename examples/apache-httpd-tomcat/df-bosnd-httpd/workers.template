@@ -1,4 +1,4 @@
-worker.list={{range $index, $entry := .Services}}{{with $entry.Labels.context}}{{$entry.Name}}lb, {{end}}{{end}}
+worker.list=jkstatus,{{range $index, $entry := .Services}}{{with $entry.Labels.context}}{{$entry.Name}}lb, {{end}}{{end}}
 
 # Loadbalancers
 {{range $index, $entry := .Services}}

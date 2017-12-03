@@ -8,6 +8,7 @@ After the stack has started, click on the **80** visible in the PWD ui. This wil
 
 ## Screenshot
 
+![screenshot](https://raw.githubusercontent.com/n0r1sk/bosnd/master/examples/apache-httpd-tomcat/screenshot.jpg)
 
 
 **Conclusion: This is for demo purpose only! Do not use it this way in production!**

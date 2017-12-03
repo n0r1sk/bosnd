@@ -59,12 +59,15 @@ type Config struct {
 	}
 	Templates map[string]Configfilepair
 	Swarm     struct {
-		Certificate  string
-		Domainprefix string
-		Domainzone   string
-		Managerurl   string
-		Services     *[]Service
-		Networks     []string
+		Cacertpem     string
+		Clientcertpem string
+		Clientkeypem  string
+		Domainprefix  string
+		Domainzone    string
+		Managerurl    string
+		Usesocket     bool
+		Services      *[]Service
+		Networks      []string
 	}
 	Prometheus struct {
 		Start      bool

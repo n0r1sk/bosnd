@@ -30,7 +30,6 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
-	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
@@ -231,43 +230,52 @@ func getorrefreshdockerclient(config *Config) bool {
 
 	for ok == false {
 
-		certpath := filepath.Clean(config.Swarm.Certificate)
-		cert, err := tls.LoadX509KeyPair(certpath+"/cert.pem", certpath+"/key.pem")
-		if err != nil {
-			log.Warn(err)
-			time.Sleep(time.Duration(config.Checkintervall) * time.Second)
-			continue
+		if config.Swarm.Usesocket {
+			var err error
+			dockerclient, err = client.NewClient("unix:///var/run/docker.sock", "", nil, nil)
+			if err != nil {
+				log.Warn(err)
+				time.Sleep(time.Duration(config.Checkintervall) * time.Second)
+				continue
+			}
+		} else {
+			cert, err := tls.LoadX509KeyPair(config.Swarm.Clientcertpem, config.Swarm.Clientkeypem)
+			if err != nil {
+				log.Warn(err)
+				time.Sleep(time.Duration(config.Checkintervall) * time.Second)
+				continue
+			}
+
+			caCert, err := ioutil.ReadFile(config.Swarm.Cacertpem)
+			if err != nil {
+				log.Warn(err)
+				time.Sleep(time.Duration(config.Checkintervall) * time.Second)
+				continue
+			}
+
+			caCertPool := x509.NewCertPool()
+			caCertPool.AppendCertsFromPEM(caCert)
+
+			tlsConfig := &tls.Config{
+				Certificates:       []tls.Certificate{cert},
+				RootCAs:            caCertPool,
+				InsecureSkipVerify: true,
+			}
+
+			tlsConfig.BuildNameToCertificate()
+			timeout := time.Duration(5 * time.Second)
+
+			transport := &http.Transport{TLSClientConfig: tlsConfig}
+			httpclient := &http.Client{Transport: transport, Timeout: timeout}
+
+			dockerclient, err = client.NewClient(config.Swarm.Managerurl, "", httpclient, nil)
+
+			if err != nil {
+				log.Warn(err)
+				time.Sleep(time.Duration(config.Checkintervall) * time.Second)
+				continue
+			}
 		}
-
-		caCert, err := ioutil.ReadFile(certpath + "/ca.pem")
-		if err != nil {
-			log.Warn(err)
-			time.Sleep(time.Duration(config.Checkintervall) * time.Second)
-			continue
-		}
-
-		caCertPool := x509.NewCertPool()
-		caCertPool.AppendCertsFromPEM(caCert)
-
-		tlsConfig := &tls.Config{
-			Certificates:       []tls.Certificate{cert},
-			RootCAs:            caCertPool,
-			InsecureSkipVerify: true,
-		}
-
-		tlsConfig.BuildNameToCertificate()
-		transport := &http.Transport{TLSClientConfig: tlsConfig}
-		timeout := time.Duration(5 * time.Second)
-		httpclient := &http.Client{Transport: transport, Timeout: timeout}
-
-		dockerclient, err = client.NewClient(config.Swarm.Managerurl, "", httpclient, nil)
-
-		if err != nil {
-			log.Warn(err)
-			time.Sleep(time.Duration(config.Checkintervall) * time.Second)
-			continue
-		}
-
 		ok = true
 	}
 

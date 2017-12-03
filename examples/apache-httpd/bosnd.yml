@@ -10,7 +10,9 @@ templates:
     src: /bosnd/sites-templates/site.template
     dst: /bosnd/sites-enabled/site.conf
 swarm:
-  certificate: /bosnd/certs
+  cacertpem: /bosnd/certs/ca.pem
+  clientcertpem: /bosnd/certs/cert.pem
+  clientkeypem: /bosnd/certs/key.pem
   domainzone: test.domain
   domainprefix: www
   managerurl: https://<your swarm manager>:2376

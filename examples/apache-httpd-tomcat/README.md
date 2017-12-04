@@ -4,7 +4,7 @@
 
 # PWD Play with docker
 
-[![Try in PWD](https://cdn.rawgit.com/play-with-docker/stacks/cff22438/assets/images/button.png)](http://play-with-docker.com/?stack=https://gist.githubusercontent.com/kleinsasserm/abddc8d17137a916e4414a25c997da4a/raw/8c72e4a7a81020e1f010797b17fa6cdf12292b98/teststack.yml)
+[![Try in PWD](https://cdn.rawgit.com/play-with-docker/stacks/cff22438/assets/images/button.png)](https://raw.githubusercontent.com/n0r1sk/bosnd/master/examples/apache-httpd-tomcat/docker-stack-pwd.yml)
 
 After the stack has started, click on the **80** visible in the PWD ui. This will open a new browser tab. There you will see the **It work's** text from the Apache httpd. This is perfect, as it shows that the Apache httpd has started. Now append the following to the url in the browser window: ```/demo/versiontest.jsp```. This will open the demo webapplication from the Apache Tomcat which we have included. It will show your session id. If you open up a second, **independed** alternative browser and paste the url from the first one, you will get a new session there. Now refresh the page. You will notice, that you stay in the same session. Voila!
 

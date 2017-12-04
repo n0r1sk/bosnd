@@ -6,9 +6,9 @@
 
 [![Try in PWD](https://cdn.rawgit.com/play-with-docker/stacks/cff22438/assets/images/button.png)](http://play-with-docker.com/?stack=https://raw.githubusercontent.com/n0r1sk/bosnd/master/examples/apache-httpd-tomcat/docker-stack-pwd.yml)
 
-After the stack has started, click on the **80** visible in the PWD ui. This will open a new browser tab. There you will see the **It work's** text from the Apache httpd. This is perfect, as it shows that the Apache httpd has started. Now append the following to the url in the browser window: ```/demo/versiontest.jsp```. This will open the demo webapplication from the Apache Tomcat which we have included. It will show your session id. If you open up a second, **independed** alternative browser and paste the url from the first one, you will get a new session there. Now refresh the page. You will notice, that you stay in the same session. Voila!
+After the stack has been started, click on the **80** visible in the PWD UI. This will open a new browser tab. There you will see the **It work's** text from the Apache httpd. This is perfect, as it shows that the Apache httpd has started. Now append the following to the url in the browser window: ```/demo/versiontest.jsp```, for example ```.../demo/versiontest.jsp``` This will open the demo webapplication from the Apache Tomcat which we have included. It will show your session id and a session access count. If you open up a second, **independed** alternative browser and paste the url from the first one, you will get a new session there. Now refresh the page multiple times. You will notice, that you stay in the same session. Voila!
 
-The Docker stack will start the ```Bosnd``` prepared Apache httpd and two additional Apache Tomcat workers. It will configure itself flawlessly! Scale the ```docker service scale pwd_tomcat=4``` and see the magic! Add ```/jkmanager``` to the url in the browser to access the jkstatus page of the ```mod_jk``` module. After a few seconds, the additional worker will come up! (see screenshot 2)
+The Docker stack will start the ```Bosnd``` prepared Apache httpd and two additional Apache Tomcat workers. It will configure itself flawlessly! Scale the ```docker service scale pwd_tomcat=4``` and see the magic! Add ```/jkmanager``` to the url in the browser to access the jkstatus page of the ```mod_jk``` module, for example ```direct.labs.play-with-docker.com/jkmanager```. After a few seconds, the additional worker will come up there! (see screenshot two)
 
 ## Screenshots
 
@@ -18,7 +18,29 @@ The Docker stack will start the ```Bosnd``` prepared Apache httpd and two additi
 
 # The anatomy
 
-Here you can find a brief description and explanation what the components are doing and why it works how it works. The sequence is top down, therefore the first item is the demo.sh script, it is the starting point.
+Here you can find a brief description and explanation what the components are doing and why it works how it works. First we will give you some tips and tricks and additional insight, about why this works. The demo.sh allows you to build all you need for this demo locally too.
+
+## Tips and tricks
+
+We will start of by the ```docker-stack-pwd.yml```. This is, where all of the things start. This section will cover the ```Play with Docker``` version of the demo, but it will be the same for the local demo version.
+
+### docker-stack-pwd.yml
+
+Here is one very important line hidden: ```hostname: "{{.Service.Name}}-{{.Task.Slot}}"```. This line located in the ```tomcat``` service will ensure, that your Tomcat service containers will get dynamic but predictable hostnames. You will need this, as this value is used by the ```jvmRoute=$HOSTNAME``` parameter in the Tomcat ```catalina.sh``` script. This value must be reflected in the Apache httpd mod_jk workers configuration, and it must be exactly the same!
+
+Be aware, that if you start a stack on PWD via a PWD-Link (like on this page), the Docker stack will be automatically named ```pwd_...```.
+
+### df-bosnd-tomcat/Dockerfile
+
+We are using the official Apache Tomcat image for this demo. Now, to set the ```jvmRoute=``` for the Apache httpd mod_jk loadbalancing in the Apache Tomcata image, we run the following command during the Docker build of the Docker image:
+
+```RUN sed -i '60i JAVA_OPTS="-DjvmRoute=$HOSTNAME"' /usr/local/tomcat/bin/catalina.sh``` 
+
+This will ensure that the ```JAVA_OPTS=``` parameter is correctly enabled in the ```catalina.sh``` file and uses the value of ```$HOSTNAME```. ```$HOSTNAME``` is set to a dynamic but predictable hostname ensured by the ```docker-stack-pwd.yml```. See the earlier section for details.
+
+### df-hosnd-httpd/Dockerfile
+
+Now as we have finished the Apache Tomcat Dockerfile, we need an appropriate Apache httpd with mod_jk enabled. Therefore the Dockerfile will include the ``` apt-get``` run to include the mod_jk module. As the offical Apache httpd images is build from source, we have to copy the ```mod_jk.so``` file to the correct location. **That is not the best way to achive this!**, that is only for this demo! Next, we have to enable the needed Apache httpd modules in the httpd config file, which is done by multiple ```sed``` statements. Afterwards, we link the stdout ```/proc/1/fd/1``` to ```/var/log/mod_jk.log``` and use this configuration in the site.template and workers.template.
 
 ## demo.sh
 

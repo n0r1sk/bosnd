@@ -42,6 +42,10 @@ This will ensure that the ```JAVA_OPTS=``` parameter is correctly enabled in the
 
 Now as we have finished the Apache Tomcat Dockerfile, we need an appropriate Apache httpd with mod_jk enabled. Therefore the Dockerfile will include the ``` apt-get``` run to include the mod_jk module. As the offical Apache httpd images is build from source, we have to copy the ```mod_jk.so``` file to the correct location. **That is not the best way to achive this!**, that is only for this demo! Next, we have to enable the needed Apache httpd modules in the httpd config file, which is done by multiple ```sed``` statements. Afterwards, we link the stdout ```/proc/1/fd/1``` to ```/var/log/mod_jk.log``` and use this configuration in the site.template and workers.template.
 
+### df-hosnd-httpd/bosnd.yml
+
+There is one new parameter there : ```usesocket: true```. This enforces the ```Bosnd``` to use the mounted Docker socket.
+
 ## demo.sh
 
 With the demo.sh script, you are able to run an Apache httpd as cookie based reverse proxy for two Apache Tomcat backends, including sticky session load balancing!

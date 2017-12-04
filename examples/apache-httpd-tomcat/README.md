@@ -32,7 +32,7 @@ Be aware, that if you start a stack on PWD via a PWD-Link (like on this page), t
 
 ### df-bosnd-tomcat/Dockerfile
 
-We are using the official Apache Tomcat image for this demo. Now, to set the ```jvmRoute=``` for the Apache httpd mod_jk loadbalancing in the Apache Tomcata image, we run the following command during the Docker build of the Docker image:
+We are using the official Apache Tomcat image for this demo. Now, to set the ```jvmRoute=``` for the Apache httpd mod_jk loadbalancing in the Apache Tomcat image, we run the following command during the Docker build of the Docker image:
 
 ```RUN sed -i '60i JAVA_OPTS="-DjvmRoute=$HOSTNAME"' /usr/local/tomcat/bin/catalina.sh``` 
 
@@ -40,13 +40,13 @@ This will ensure that the ```JAVA_OPTS=``` parameter is correctly enabled in the
 
 ### df-hosnd-httpd/Dockerfile
 
-Now as we have finished the Apache Tomcat Dockerfile, we need an appropriate Apache httpd with mod_jk enabled. Therefore the Dockerfile will include the ``` apt-get``` run to include the mod_jk module. As the offical Apache httpd images is build from source, we have to copy the ```mod_jk.so``` file to the correct location. **That is not the best way to achive this!**, that is only for this demo! Next, we have to enable the needed Apache httpd modules in the httpd config file, which is done by multiple ```sed``` statements. Afterwards, we link the stdout ```/proc/1/fd/1``` to ```/var/log/mod_jk.log``` and use this configuration in the site.template and workers.template.
+Now as we have finished the Apache Tomcat Dockerfile, we need an appropriate Apache httpd with mod_jk enabled. Therefore the Dockerfile will include the ``` apt-get``` run to include the mod_jk module. As the offical Apache httpd images is build from source, we have to copy the ```mod_jk.so``` file to the correct location. **That is not the best way to achieve this!**, that is only for this demo! Next, we have to enable the needed Apache httpd modules in the httpd config file, which is done by multiple ```sed``` statements. Afterwards, we link the stdout ```/proc/1/fd/1``` to ```/var/log/mod_jk.log``` and use this configuration in the site.template and workers.template.
 
 ### df-hosnd-httpd/bosnd.yml
 
 There is one new parameter there : ```usesocket: true```. This enforces the ```Bosnd``` to use the mounted Docker socket.
 
-## demo.sh
+## demo.sh (documentation has to be changed from here for this example...)
 
 With the demo.sh script, you are able to run an Apache httpd as cookie based reverse proxy for two Apache Tomcat backends, including sticky session load balancing!
 

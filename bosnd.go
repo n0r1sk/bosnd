@@ -440,10 +440,14 @@ func main() {
 		go prom(config)
 	}
 
-	// get docker client for swarm
-	ok = getorrefreshdockerclient(config)
-	if ok != true {
-		log.Debug("Unable to create Docker Api client!")
+	// only take the swarm into accout if it is configured
+
+	if config.Swarm.Noswarm != true {
+		// get docker client for swarm
+		ok = getorrefreshdockerclient(config)
+		if ok != true {
+			log.Debug("Unable to create Docker Api client!")
+		}
 	}
 
 	// this will loop forever
@@ -459,14 +463,16 @@ func main() {
 			continue
 		}
 
-		// get services from Docker network and Docker services
-		// work with the local working config inside the loop
-		err := getservicesofnet(config)
-		if err != nil {
-			log.Debug(err)
-			log.Warn(aurora.Red("Error during retrieving information: " + err.Error()))
-			time.Sleep(time.Duration(config.Checkintervall) * time.Second)
-			continue
+		if config.Swarm.Noswarm != true {
+			// get services from Docker network and Docker services
+			// work with the local working config inside the loop
+			err := getservicesofnet(config)
+			if err != nil {
+				log.Debug(err)
+				log.Warn(aurora.Red("Error during retrieving information: " + err.Error()))
+				time.Sleep(time.Duration(config.Checkintervall) * time.Second)
+				continue
+			}
 		}
 
 		// process config

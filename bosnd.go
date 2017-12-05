@@ -46,6 +46,7 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/logrusorgru/aurora"
 
+	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
@@ -396,6 +397,25 @@ func prom(config *Config) {
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+config.Prometheus.Listenport, nil))
 }
 
+type rc struct {
+	config *Config
+}
+
+func (rcontrol *rc) reload(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	if params["id"] == "as-34" {
+		log.Info("Reload triggered!")
+		reloadprocess(rcontrol.config)
+	}
+}
+
+func api(config *Config) {
+	router := mux.NewRouter()
+	r := &rc{config: config}
+	router.HandleFunc("/reload/{id}", r.reload).Methods("GET")
+	log.Fatal(http.ListenAndServe("0.0.0.0:3333", router))
+}
+
 func main() {
 
 	// ignore all signals of child, the kernel will clean them up, no zombies
@@ -436,19 +456,21 @@ func main() {
 	}
 
 	// check if Prometheus is enabled
-	if config.Prometheus.Start == true {
+	if config.Prometheus.Listenport != "" {
 		go prom(config)
 	}
 
 	// only take the swarm into accout if it is configured
 
-	if config.Swarm.Noswarm != true {
+	if len(config.Swarm.Networks) == 0 {
 		// get docker client for swarm
 		ok = getorrefreshdockerclient(config)
 		if ok != true {
 			log.Debug("Unable to create Docker Api client!")
 		}
 	}
+
+	go api(config)
 
 	// this will loop forever
 	mainloop = true
@@ -463,7 +485,7 @@ func main() {
 			continue
 		}
 
-		if config.Swarm.Noswarm != true {
+		if len(config.Swarm.Networks) == 0 {
 			// get services from Docker network and Docker services
 			// work with the local working config inside the loop
 			err := getservicesofnet(config)

@@ -59,7 +59,6 @@ type Config struct {
 	}
 	Templates map[string]Configfilepair
 	Swarm     struct {
-		Noswarm       bool
 		Cacertpem     string
 		Clientcertpem string
 		Clientkeypem  string
@@ -71,7 +70,6 @@ type Config struct {
 		Networks      []string
 	}
 	Prometheus struct {
-		Start      bool
 		Listenport string
 	}
 }

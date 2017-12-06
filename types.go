@@ -16,6 +16,15 @@ limitations under the License.
 
 package main
 
+type flgs struct {
+	c *string
+	v *bool
+}
+
+type rc struct {
+	config *Config
+}
+
 // Endpoint Defines an endpoint (Docker task container)
 type Endpoint struct {
 	Hostname string
@@ -51,7 +60,7 @@ type Config struct {
 		Processname string
 	}
 	Pdns struct {
-		Apiurl       string
+		Apiurl       string // this is the enable Pdns config switch
 		Apikey       string
 		Ipaddress    string
 		Domainprefix string
@@ -67,9 +76,13 @@ type Config struct {
 		Managerurl    string
 		Usesocket     bool
 		Services      *[]Service
-		Networks      []string
+		Networks      []string // this is the enable Swarm config switch
 	}
 	Prometheus struct {
-		Listenport string
+		Port string // this is the enable Prometheus config switch
+	}
+	Control struct {
+		Port string
+		Key  string // this is the enable Control config switch
 	}
 }

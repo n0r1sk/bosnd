@@ -7,11 +7,13 @@ TARGET := $(shell echo $${PWD\#\#*/})
 .DEFAULT_GOAL: $(TARGET)
 
 # These will be provided to the target
-VERSION := 1.0.0
+VERSIONNAME := HMS-Charles-(1668)
+VERSION := 0.3
 BUILD := `git rev-parse HEAD`
+BUILDTIME := `date +'%y.%m.%d/%H:%M:%S'`
 
 # Use linker flags to provide version/build settings to the target
-LDFLAGS=-ldflags "-X=main.Version=$(VERSION) -X=main.Build=$(BUILD)"
+LDFLAGS=-ldflags "-X=main.Version=$(VERSION) -X=main.Versionname=$(VERSIONNAME) -X=main.Build=$(BUILD) -X=main.Buildtime=$(BUILDTIME)"
 
 # go source files, ignore vendor directory
 SRC = $(shell find . -type f -name '*.go' -not -path "./vendor/*")

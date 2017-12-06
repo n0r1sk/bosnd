@@ -83,3 +83,18 @@ pdns:
   domainprefix: <www>
   domainzone: <yourdomain.com>
 ```
+
+## Control
+
+The control interface can be used to force a service reload from the outside via http. This is useful, if you have services which are rely on SSL certificates which are renewed by a LetsEncrypt container. If this container renews the certificates you might want to reload the service which is controlled by the ```Bosnd``` too.
+```
+control:
+  port: 3333
+  key: mykey
+```
+
+If you enable the control block, you can use a browser (or curl) afterwards to trigger the reload: 
+```
+$ curl http://127.0.0.1:3333/reload/mykey
+$ Reloaded!
+```

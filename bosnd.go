@@ -58,6 +58,11 @@ var ctrlcmd *exec.Cmd
 var dockerclient *client.Client
 var configfile string
 
+var Version string
+var Versionname string
+var Build string
+var Buildtime string
+
 var configReloads = prometheus.NewCounter(
 	prometheus.CounterOpts{
 		Name: "bosnd_service_configuration_reloads",
@@ -108,6 +113,13 @@ func isprocessrunningps(config *Config) (running bool) {
 	return running
 
 }
+
+var versionTemplate = `The Docker Bosnd - made by https://www.n0r1sk.com
+-------------------------------------------------
+Version:        {{.Version}}
+Version Name:   {{.Versionname}}
+Build:          {{.Build}}
+Buildtime:      {{.Buildtime}}`
 
 func startprocess(config *Config) {
 	log.Info("Start Process!")
@@ -381,12 +393,16 @@ func getservicesofnet(config *Config) error {
 	//log.Debug(string(j[:]))
 }
 
-func parsecmdline() string {
-	c := flag.String("c", "/config/bosnd.yml", "config file including path")
+func parsecmdline() *flgs {
+
+	f := flgs{}
+
+	f.c = flag.String("c", "/config/bosnd.yml", "config file including path")
+	f.v = flag.Bool("v", false, "Print the version and exit")
 
 	flag.Parse()
 
-	return *c
+	return &f
 }
 
 func prom(config *Config) {
@@ -394,18 +410,16 @@ func prom(config *Config) {
 
 	flag.Parse()
 	http.Handle("/metrics", promhttp.Handler())
-	log.Fatal(http.ListenAndServe("0.0.0.0:"+config.Prometheus.Listenport, nil))
-}
-
-type rc struct {
-	config *Config
+	log.Fatal(http.ListenAndServe("0.0.0.0:"+config.Prometheus.Port, nil))
 }
 
 func (rcontrol *rc) reload(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	if params["id"] == "as-34" {
+	if params["id"] == rcontrol.config.Control.Key {
 		log.Info("Reload triggered!")
 		reloadprocess(rcontrol.config)
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Reloaded!"))
 	}
 }
 
@@ -413,7 +427,7 @@ func api(config *Config) {
 	router := mux.NewRouter()
 	r := &rc{config: config}
 	router.HandleFunc("/reload/{id}", r.reload).Methods("GET")
-	log.Fatal(http.ListenAndServe("0.0.0.0:3333", router))
+	log.Fatal(http.ListenAndServe("0.0.0.0:"+config.Control.Port, router))
 }
 
 func main() {
@@ -429,7 +443,51 @@ func main() {
 	log.SetFormatter(customFormatter)
 	log.SetOutput(os.Stdout)
 
-	configfile = parsecmdline()
+	fl := parsecmdline()
+
+	if *fl.v == true {
+
+		type v struct {
+			Version     string
+			Versionname string
+			Build       string
+			Buildtime   string
+		}
+
+		actversion := v{}
+		actversion.Build = Build
+
+		if Version == "" {
+			actversion.Version = "Manual Build!"
+		} else {
+			actversion.Version = Version
+		}
+
+		if Buildtime == "" {
+			actversion.Buildtime = time.Now().String()
+		} else {
+			actversion.Buildtime = Buildtime
+		}
+
+		actversion.Versionname = Versionname
+
+		tmpl, err := template.New("").Parse(versionTemplate)
+		if err != nil {
+			log.Warn(err)
+		}
+
+		var tpl bytes.Buffer
+		tmpl.Execute(&tpl, actversion)
+		if err != nil {
+			log.Warn(err)
+		}
+
+		fmt.Print(tpl.String() + "\n")
+
+		os.Exit(0)
+	}
+
+	configfile = *fl.c
 	config, ok := ReadConfigfile(configfile)
 	if !ok {
 		log.Warn(aurora.Red("Error during config parsing, yet continuing!"))
@@ -456,13 +514,12 @@ func main() {
 	}
 
 	// check if Prometheus is enabled
-	if config.Prometheus.Listenport != "" {
+	if config.Prometheus.Port != "" {
 		go prom(config)
 	}
 
 	// only take the swarm into accout if it is configured
-
-	if len(config.Swarm.Networks) == 0 {
+	if len(config.Swarm.Networks) != 0 {
 		// get docker client for swarm
 		ok = getorrefreshdockerclient(config)
 		if ok != true {
@@ -470,7 +527,10 @@ func main() {
 		}
 	}
 
-	go api(config)
+	// only take the control into accout if it is configured
+	if config.Control.Key != "" {
+		go api(config)
+	}
 
 	// this will loop forever
 	mainloop = true
@@ -485,7 +545,7 @@ func main() {
 			continue
 		}
 
-		if len(config.Swarm.Networks) == 0 {
+		if len(config.Swarm.Networks) != 0 {
 			// get services from Docker network and Docker services
 			// work with the local working config inside the loop
 			err := getservicesofnet(config)

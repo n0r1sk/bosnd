@@ -33,6 +33,7 @@ import (
 	"regexp"
 	"sort"
 	"strconv"
+	"strings"
 	"syscall"
 	"text/template"
 	"time"
@@ -351,19 +352,34 @@ func getservicesofnet(config *Config) error {
 				return err
 			}
 
-			// get ips to sclice
-			var tmpips []string
-			for _, t := range s.Tasks {
-				tmpips = append(tmpips, t.EndpointIP)
+			// get the ips and the task slot to slice
+			type tmpdata struct {
+				ip   string
+				slot string
 			}
 
-			sort.Strings(tmpips)
+			var tmpdatas []tmpdata
+
+			// get ips to sclice
+			for _, t := range s.Tasks {
+				log.Debug("---")
+				log.Debug(t.Name + " " + t.EndpointIP)
+				log.Debug("---")
+				var td tmpdata
+				td.ip = t.EndpointIP
+				td.slot = strings.Split(t.Name, ".")[1]
+				tmpdatas = append(tmpdatas, td)
+			}
+
+			sort.Slice(tmpdatas, func(i, j int) bool {
+				return tmpdatas[i].slot < tmpdatas[j].slot
+			})
 
 			cnt := 1
-			for _, ip := range tmpips {
+			for _, d := range tmpdatas {
 				me := Endpoint{}
-				me.Address = ip
-				me.Hostname = k + "-" + strconv.Itoa(cnt)
+				me.Address = d.ip
+				me.Hostname = k + "-" + d.slot
 				ms.Endpoints = append(ms.Endpoints, me)
 				cnt++
 			}

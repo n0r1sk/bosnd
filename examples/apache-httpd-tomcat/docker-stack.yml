@@ -1,7 +1,7 @@
 version: '3.3'
 services:
   httpd:
-    image: "bosnd-httpd:1.0"
+    image: "bosnd-httpd:1.1"
     ports:
       - "3456:80"
     networks:

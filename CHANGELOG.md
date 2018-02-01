@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [v0.3] - open
+## [v0.4] - 2018.02.01
+### Changed
+- Fixed backend shuffling
+
+## [v0.3] - 2017.12.11
 ### Added
 - Control http interface to trigger reload from the outside
 - ```Bosnd``` can now be used without a swarm configuration to benefit from the templating without having Docker Swarm
@@ -33,7 +37,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Removed
 
-[Unreleased]: https://github.com/n0r1sk/bosnd/compare/v0.3...HEAD
+[Unreleased]: https://github.com/n0r1sk/bosnd/compare/v0.4...HEAD
+[v0.4]: https://github.com/n0r1sk/bosnd/compare/v0.3...v0.4
 [v0.3]: https://github.com/n0r1sk/bosnd/compare/v0.2...v0.3
 [v0.2]: https://github.com/n0r1sk/bosnd/compare/v0.1...v0.2
 

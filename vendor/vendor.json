@@ -243,8 +243,8 @@
 		{
 			"checksumSHA1": "GWlM3d2vPYyNATtTFgftS10/A9w=",
 			"path": "github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg",
-			"revision": "2e54d0b93cba2fd133edc32211dcc32c06ef72ca",
-			"revisionTime": "2017-11-17T16:30:51Z"
+			"revision": "89604d197083d4781071d3c65855d24ecfb0a563",
+			"revisionTime": "2018-01-10T21:49:58Z"
 		},
 		{
 			"checksumSHA1": "YU+/K48IMawQnToO4ETE6a+hhj4=",
@@ -263,6 +263,12 @@
 			"path": "github.com/prometheus/procfs/xfs",
 			"revision": "a6e9df898b1336106c743392c48ee0b71f5c4efa",
 			"revisionTime": "2017-10-17T21:40:25Z"
+		},
+		{
+			"checksumSHA1": "bOUCnFlRuGN/E633R/lFuiWVrkk=",
+			"path": "github.com/robfig/cron",
+			"revision": "2315d5715e36303a941d907f038da7f7c44c773b",
+			"revisionTime": "2017-11-01T20:10:47Z"
 		},
 		{
 			"checksumSHA1": "pOsyzLxA9jL375TDmbDdsgiMPl8=",

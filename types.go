@@ -85,4 +85,8 @@ type Config struct {
 		Port string
 		Key  string // this is the enable Control config switch
 	}
+
+	Cron struct {
+		Crontab string // this is the enable Cron config switch
+	}
 }

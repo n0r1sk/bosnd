@@ -47,6 +47,7 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
 	"github.com/logrusorgru/aurora"
+	"github.com/robfig/cron"
 
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
@@ -65,16 +66,16 @@ var dockerclient *client.Client
 var configfile string
 var kubeclient *kubernetes.Clientset
 
-// Version makefile string
+// Version is the version number used by the make script
 var Version string
 
-// Versionname makefile string
+// Versionname is the codename used by the make script
 var Versionname string
 
-// Build makefile string
+// Build is the build hash used by the make script
 var Build string
 
-// Buildtime makefile string
+// Buildtime is the timestamp used by the make script
 var Buildtime string
 
 var configReloads = prometheus.NewCounter(
@@ -244,7 +245,7 @@ func writeconfig(config *Config) (changed bool) {
 
 }
 
-func getsericelabel(ctx context.Context, servicename string) (map[string]string, error) {
+func getservicelabel(ctx context.Context, servicename string) (map[string]string, error) {
 	f := filters.NewArgs()
 	f.Add("name", servicename)
 
@@ -370,7 +371,7 @@ func getservicesofnet(config *Config) error {
 			ms := Service{}
 			ms.Name = k
 
-			ms.Labels, err = getsericelabel(ctx, ms.Name)
+			ms.Labels, err = getservicelabel(ctx, ms.Name)
 
 			if err != nil {
 				return err
@@ -386,9 +387,7 @@ func getservicesofnet(config *Config) error {
 
 			// get ips to sclice
 			for _, t := range s.Tasks {
-				log.Debug("---")
 				log.Debug(t.Name + " " + t.EndpointIP)
-				log.Debug("---")
 				var td tmpdata
 				td.ip = t.EndpointIP
 				td.slot = strings.Split(t.Name, ".")[1]
@@ -661,6 +660,17 @@ func main() {
 	// this will loop forever
 	mainloop = true
 	var changed = false
+
+	// create a cron job
+	if config.Cron.Crontab != "" {
+		c := cron.New()
+		c.AddFunc(config.Cron.Crontab, func() {
+			reloadprocess(config)
+			log.Info("Sevice reloaded by cronjob")
+		})
+		c.Start()
+		log.Info("Crontab controled reload started!")
+	}
 
 	for mainloop == true {
 		// reread config file

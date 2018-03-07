@@ -391,6 +391,12 @@
 			"revisionTime": "2017-10-17T21:40:25Z"
 		},
 		{
+			"checksumSHA1": "bOUCnFlRuGN/E633R/lFuiWVrkk=",
+			"path": "github.com/robfig/cron",
+			"revision": "2315d5715e36303a941d907f038da7f7c44c773b",
+			"revisionTime": "2017-11-01T20:10:47Z"
+		},
+		{
 			"checksumSHA1": "pOsyzLxA9jL375TDmbDdsgiMPl8=",
 			"path": "github.com/sirupsen/logrus",
 			"revision": "95cd2b9c79aa5e72ab0bc69b7ccc2be15bf850f6",

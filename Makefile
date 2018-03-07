@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-GOPATH := /home/${USER}/git/go
+GOPATH := /home/${USER}/go
 export GOPATH
 
 # The name of the executable (default is current directory name)
@@ -7,8 +7,8 @@ TARGET := $(shell echo $${PWD\#\#*/})
 .DEFAULT_GOAL: $(TARGET)
 
 # These will be provided to the target
-VERSIONNAME := HMS-St-Andrew-(1670)
-VERSION := 0.4
+VERSIONNAME := HMS-Prince-(1670)
+VERSION := 0.5
 BUILD := `git rev-parse HEAD`
 BUILDTIME := `date +'%y.%m.%d/%H:%M:%S'`
 

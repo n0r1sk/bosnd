@@ -18,7 +18,7 @@ package main
 
 type flgs struct {
 	c *string
-	v *bool
+	b *bool
 }
 
 type rc struct {
@@ -41,6 +41,13 @@ type Service struct {
 // Swarmservices A slices of Docker services
 type Swarmservices struct {
 	Services []Service
+}
+
+// Pod The Pod information
+type Pod struct {
+	Labels   map[string]string
+	Hostname string
+	Address  string
 }
 
 // Configfilepair A pair of template source and resulting destination configfile
@@ -77,6 +84,12 @@ type Config struct {
 		Usesocket     bool
 		Services      *[]Service
 		Networks      []string // this is the enable Swarm config switch
+	}
+	Kubernetes struct {
+		Domainprefix string
+		Domainzone   string
+		Namespace    string // Enable switch is the existence of the environmet variable MY_NAMESPACE
+		Apps         *map[string][]Pod
 	}
 	Prometheus struct {
 		Port string // this is the enable Prometheus config switch

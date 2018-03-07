@@ -30,6 +30,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
@@ -51,6 +52,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -58,10 +63,18 @@ var mainloop bool
 var ctrlcmd *exec.Cmd
 var dockerclient *client.Client
 var configfile string
+var kubeclient *kubernetes.Clientset
 
+// Version makefile string
 var Version string
+
+// Versionname makefile string
 var Versionname string
+
+// Build makefile string
 var Build string
+
+// Buildtime makefile string
 var Buildtime string
 
 var configReloads = prometheus.NewCounter(
@@ -175,10 +188,21 @@ func writeconfig(config *Config) (changed bool) {
 
 		// process template
 		var tpl bytes.Buffer
-		err = t.Execute(&tpl, config.Swarm)
-		if err != nil {
-			log.Error(err)
-			continue
+
+		if len(config.Swarm.Networks) != 0 {
+			err = t.Execute(&tpl, config.Swarm)
+			if err != nil {
+				log.Error(err)
+				continue
+			}
+		}
+
+		if config.Kubernetes.Namespace != "" {
+			err = t.Execute(&tpl, config.Kubernetes)
+			if err != nil {
+				log.Error(err)
+				continue
+			}
 		}
 
 		// create md5 of result
@@ -409,18 +433,6 @@ func getservicesofnet(config *Config) error {
 	//log.Debug(string(j[:]))
 }
 
-func parsecmdline() *flgs {
-
-	f := flgs{}
-
-	f.c = flag.String("c", "/config/bosnd.yml", "config file including path")
-	f.v = flag.Bool("v", false, "Print the version and exit")
-
-	flag.Parse()
-
-	return &f
-}
-
 func prom(config *Config) {
 	prometheus.MustRegister(configReloads)
 
@@ -446,6 +458,99 @@ func api(config *Config) {
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+config.Control.Port, router))
 }
 
+func homeDir() string {
+	if h := os.Getenv("HOME"); h != "" {
+		return h
+	}
+	return os.Getenv("USERPROFILE") // windows
+}
+
+func getkubernetesclient() bool {
+
+	log.Debug("Testing Kubeclient")
+	ok := false
+
+	for ok == false {
+		var err error
+
+		var kubeconfig string
+		if home := homeDir(); home != "" {
+			kubeconfig = filepath.Join(home, ".kube", "config")
+		}
+
+		// use the current context in kubeconfig
+		kconfig, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		// create the clientset
+		kubeclient, err = kubernetes.NewForConfig(kconfig)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		_, err = kubeclient.CoreV1().Nodes().List(metav1.ListOptions{})
+		if err != nil {
+			log.Error(err)
+			time.Sleep(time.Duration(10 * time.Second))
+		} else {
+			ok = true
+		}
+
+	}
+
+	return ok
+
+}
+
+func getkubernetespods(config *Config) error {
+
+	ok := getkubernetesclient()
+	if ok != true {
+		return errors.New("Failed to create Kubernetes Client")
+	}
+
+	pods, err := kubeclient.CoreV1().Pods(config.Kubernetes.Namespace).List(metav1.ListOptions{})
+	if err != nil {
+		panic(err.Error())
+	}
+	fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
+
+	var apps map[string][]Pod
+	// init map
+	apps = make(map[string][]Pod)
+
+	for _, p := range pods.Items {
+
+		if p.Labels["context"] == "" || p.Labels["app"] == "" {
+			continue
+		}
+
+		// create pod
+		var po Pod
+		po.Labels = p.Labels
+		po.Hostname = p.Name
+		po.Address = p.Status.PodIP
+
+		// add to pod to app
+		apps[p.Labels["app"]] = append(apps[p.Labels["app"]], po)
+
+		log.Debug(po.Hostname + " " + po.Address)
+	}
+
+	for _, pods := range apps {
+		sort.Slice(pods, func(i, j int) bool {
+			return pods[i].Hostname < pods[j].Hostname
+		})
+	}
+
+	config.Kubernetes.Apps = &apps
+	log.Debug(config.Kubernetes.Apps)
+
+	return nil
+}
+
 func main() {
 
 	// ignore all signals of child, the kernel will clean them up, no zombies
@@ -459,9 +564,14 @@ func main() {
 	log.SetFormatter(customFormatter)
 	log.SetOutput(os.Stdout)
 
-	fl := parsecmdline()
+	f := flgs{}
 
-	if *fl.v == true {
+	f.c = flag.String("c", "/config/bosnd.yml", "config file including path")
+	f.b = flag.Bool("b", false, "Print the version and exit")
+
+	flag.Parse()
+
+	if *f.b == true {
 
 		type v struct {
 			Version     string
@@ -503,7 +613,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	configfile = *fl.c
+	configfile = *f.c
 	config, ok := ReadConfigfile(configfile)
 	if !ok {
 		log.Warn(aurora.Red("Error during config parsing, yet continuing!"))
@@ -565,6 +675,17 @@ func main() {
 			// get services from Docker network and Docker services
 			// work with the local working config inside the loop
 			err := getservicesofnet(config)
+			if err != nil {
+				log.Debug(err)
+				log.Warn(aurora.Red("Error during retrieving information: " + err.Error()))
+				time.Sleep(time.Duration(config.Checkintervall) * time.Second)
+				continue
+			}
+		}
+
+		if config.Kubernetes.Namespace != "" {
+			// get the pods of the namespace ordered by label app=
+			err := getkubernetespods(config)
 			if err != nil {
 				log.Debug(err)
 				log.Warn(aurora.Red("Error during retrieving information: " + err.Error()))

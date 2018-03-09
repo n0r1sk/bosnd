@@ -219,10 +219,11 @@ func writeconfig(config *Config) (changed bool) {
 		}
 
 		md5exconf := fmt.Sprintf("%x", md5.Sum(exconf))
-		log.Debug("MD5 of EXCONF" + v.Src + ": " + md5exconf)
+		log.Debug("MD5 of EXCONF" + v.Dst + ": " + md5exconf)
 		// log.Debug("TPL: " + string(exconf[:]))
 
 		// comapre md5 and write config if needed
+		log.Debug("MD5: " + md5tpl + " " + md5exconf)
 		if md5tpl == md5exconf {
 			log.Info(aurora.Green("MD5 sums of " + v.Src + " equal! Nothing to do."))
 			continue
@@ -677,6 +678,13 @@ func main() {
 		ok := ReReadConfigfile(configfile, config)
 		if !ok {
 			log.Warn(aurora.Red("Error during config parsing, yet continuing!"))
+			time.Sleep(time.Duration(config.Checkintervall) * time.Second)
+			continue
+		}
+
+		log.Debug("------------" + config.Kubernetes.Namespace)
+		if len(config.Swarm.Networks) == 0 && config.Kubernetes.Namespace == "" {
+			log.Warn(aurora.Red("Swarm Network OR Kubernetes Namespace not configured"))
 			time.Sleep(time.Duration(config.Checkintervall) * time.Second)
 			continue
 		}

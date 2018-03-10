@@ -585,19 +585,35 @@ func azuredns(config *Config) error {
 	res, err := vdnsClient.Get(context.Background(), azureresourcegroup, config.Kubernetes.Domainzone, config.Kubernetes.Domainprefix, dns.A)
 
 	if err != nil {
-		return err
+		// if the StatusCode = 404 we can proceed, because we are writing a new record
+		if strings.Contains(err.Error(), "404") {
+			log.Warn("Not found A Rec: " + config.Kubernetes.Domainprefix + " in " + config.Kubernetes.Domainzone)
+		} else {
+			return err
+		}
+	} else {
+		meta := *res.RecordSetProperties.Metadata
+		for _, v := range *res.RecordSetProperties.ARecords {
+			log.Debug("Previous IP Address: " + *v.Ipv4Address + " Last change: " + *meta["lastchangehuman"])
+		}
 	}
 
-	log.Debug("Creating A Rec\n")
+	log.Debug("Creating A Rec: " + config.Kubernetes.Domainprefix + " in " + config.Kubernetes.Domainzone)
 
-	for _, v := range *res.RecordSetProperties.ARecords {
-		log.Debug("Previous IP Address: " + *v.Ipv4Address)
-	}
+	t := time.Now()
+	meta := make(map[string]*string)
+	lastchangeepoch := strconv.FormatInt(t.UnixNano()/int64(time.Millisecond), 10)
+	lastchangehuman := t.Format("2006-01-02T15:04:05.999-07:00")
+	meta["lastchangeepoch"] = &lastchangeepoch
+	meta["lastchangehuman"] = &lastchangehuman
+	meta["namespace"] = &config.Kubernetes.Namespace
 
 	rs := dns.RecordSet{
 		Name: to.StringPtr(config.Kubernetes.Domainprefix),
 		RecordSetProperties: &dns.RecordSetProperties{
-			TTL: to.Int64Ptr(60),
+			Metadata: &meta,
+			TTL:      to.Int64Ptr(60),
+			//Metadata: &make(map["lastchange"]strconv.FormatInt(time.Now().UnixNano() / int64(time.Millisecond, 10)))
 			ARecords: &[]dns.ARecord{
 				{
 					Ipv4Address: to.StringPtr(mypodip),
@@ -613,9 +629,9 @@ func azuredns(config *Config) error {
 	if err != nil {
 		return err
 	}
-
+	rrsmeta := *rrs.RecordSetProperties.Metadata
 	for _, v := range *rrs.RecordSetProperties.ARecords {
-		log.Debug("Actual IP Address: " + *v.Ipv4Address)
+		log.Debug("Actual IP Address: " + *v.Ipv4Address + " Changed at: " + *rrsmeta["lastchangehuman"])
 	}
 
 	return nil
@@ -763,7 +779,7 @@ func main() {
 			continue
 		}
 
-		log.Debug("------------" + config.Kubernetes.Namespace)
+		log.Debug("Kubernetes namespace: " + config.Kubernetes.Namespace)
 		if len(config.Swarm.Networks) == 0 && config.Kubernetes.Namespace == "" {
 			log.Warn(aurora.Red("Swarm Network OR Kubernetes Namespace not configured"))
 			time.Sleep(time.Duration(config.Checkintervall) * time.Second)

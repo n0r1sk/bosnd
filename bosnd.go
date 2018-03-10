@@ -57,6 +57,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 
+	"github.com/Azure/azure-sdk-for-go/services/dns/mgmt/2017-09-01/dns"
+	"github.com/Azure/go-autorest/autorest/azure/auth"
+	"github.com/Azure/go-autorest/autorest/to"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -551,6 +555,72 @@ func getkubernetespods(config *Config) error {
 	return nil
 }
 
+func azuredns(config *Config) error {
+
+	// check if all env variables are here
+
+	azuresubscriptionid := os.Getenv("AZURE_SUBSCRIPTION_ID")
+	azureclientid := os.Getenv("AZURE_CLIENT_ID")
+	azureclientsecret := os.Getenv("AZURE_CLIENT_SECRET")
+	azuretenantid := os.Getenv("AZURE_TENANT_ID")
+	azureresourcegroup := os.Getenv("AZURE_RESOURCE_GROUP")
+	mypodip := os.Getenv("MY_POD_IP")
+
+	if azuresubscriptionid == "" ||
+		azureclientid == "" ||
+		azureclientsecret == "" ||
+		azuretenantid == "" ||
+		azureresourcegroup == "" ||
+		mypodip == "" {
+		return errors.New("Not all Azure env variables are set")
+	}
+
+	vdnsClient := dns.NewRecordSetsClient(azuresubscriptionid)
+	authorizer, err := auth.NewAuthorizerFromEnvironment()
+
+	if err == nil {
+		vdnsClient.Authorizer = authorizer
+	}
+
+	res, err := vdnsClient.Get(context.Background(), azureresourcegroup, config.Kubernetes.Domainzone, config.Kubernetes.Domainprefix, dns.A)
+
+	if err != nil {
+		return err
+	}
+
+	log.Debug("Creating A Rec\n")
+
+	for _, v := range *res.RecordSetProperties.ARecords {
+		log.Debug("Previous IP Address: " + *v.Ipv4Address)
+	}
+
+	rs := dns.RecordSet{
+		Name: to.StringPtr(config.Kubernetes.Domainprefix),
+		RecordSetProperties: &dns.RecordSetProperties{
+			TTL: to.Int64Ptr(60),
+			ARecords: &[]dns.ARecord{
+				{
+					Ipv4Address: to.StringPtr(mypodip),
+				},
+			},
+		},
+	}
+
+	rrs, err := vdnsClient.CreateOrUpdate(context.Background(),
+		azureresourcegroup,
+		config.Kubernetes.Domainzone, config.Kubernetes.Domainprefix, dns.A, rs, "", "")
+
+	if err != nil {
+		return err
+	}
+
+	for _, v := range *rrs.RecordSetProperties.ARecords {
+		log.Debug("Actual IP Address: " + *v.Ipv4Address)
+	}
+
+	return nil
+}
+
 func main() {
 
 	// ignore all signals of child, the kernel will clean them up, no zombies
@@ -674,6 +744,17 @@ func main() {
 	}
 
 	for mainloop == true {
+
+		// update Azure DNS with pod ip if enabled
+		if config.Kubernetes.Updateazuredns == true {
+			err := azuredns(config)
+			if err != nil {
+				log.Warn(aurora.Red(err))
+				time.Sleep(time.Duration(config.Checkintervall) * time.Second)
+				continue
+			}
+		}
+
 		// reread config file
 		ok := ReReadConfigfile(configfile, config)
 		if !ok {

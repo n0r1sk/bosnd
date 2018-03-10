@@ -86,10 +86,11 @@ type Config struct {
 		Networks      []string // this is the enable Swarm config switch
 	}
 	Kubernetes struct {
-		Domainprefix string
-		Domainzone   string
-		Namespace    string // Enable switch is the existence of the environmet variable MY_NAMESPACE
-		Apps         *map[string][]Pod
+		Updateazuredns bool
+		Domainprefix   string
+		Domainzone     string
+		Namespace      string // Enable switch is the existence of the environmet variable MY_NAMESPACE
+		Apps           *map[string][]Pod
 	}
 	Prometheus struct {
 		Port string // this is the enable Prometheus config switch

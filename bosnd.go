@@ -594,11 +594,11 @@ func azuredns(config *Config) error {
 	} else {
 		meta := *res.RecordSetProperties.Metadata
 		for _, v := range *res.RecordSetProperties.ARecords {
-			log.Debug("Previous IP Address: " + *v.Ipv4Address + " Last change: " + *meta["lastchangehuman"])
+			log.Info("Previous IP Address: " + *v.Ipv4Address + " Last change: " + *meta["lastchangehuman"])
 		}
 	}
 
-	log.Debug("Creating A Rec: " + config.Kubernetes.Domainprefix + " in " + config.Kubernetes.Domainzone)
+	log.Info("Creating A Rec: " + config.Kubernetes.Domainprefix + " in " + config.Kubernetes.Domainzone)
 
 	t := time.Now()
 	meta := make(map[string]*string)
@@ -631,7 +631,7 @@ func azuredns(config *Config) error {
 	}
 	rrsmeta := *rrs.RecordSetProperties.Metadata
 	for _, v := range *rrs.RecordSetProperties.ARecords {
-		log.Debug("Actual IP Address: " + *v.Ipv4Address + " Changed at: " + *rrsmeta["lastchangehuman"])
+		log.Info("Actual IP Address: " + *v.Ipv4Address + " Changed at: " + *rrsmeta["lastchangehuman"])
 	}
 
 	return nil

@@ -330,9 +330,22 @@ func getservicesofnet(config *Config) error {
 			continue
 		}
 
-		log.Debug(nl[0].ID)
+		log.Debug(nl)
 
-		n, err := dockerclient.NetworkInspect(ctx, nl[0].ID, types.NetworkInspectOptions{Verbose: true})
+		var nid string
+		var nn string
+		if len(nl) > 1 {
+			for _, n := range nl {
+				if n.Name == netwn {
+					nid = n.ID
+					nn = n.Name
+				}
+			}
+		}
+
+		log.Debug("Matched network: " + nn)
+
+		n, err := dockerclient.NetworkInspect(ctx, nid, types.NetworkInspectOptions{Verbose: true})
 
 		if err != nil {
 			return err
@@ -362,9 +375,7 @@ func getservicesofnet(config *Config) error {
 
 			// get ips to sclice
 			for _, t := range s.Tasks {
-				log.Debug("---")
 				log.Debug(t.Name + " " + t.EndpointIP)
-				log.Debug("---")
 				var td tmpdata
 				td.ip = t.EndpointIP
 				td.slot = strings.Split(t.Name, ".")[1]

@@ -7,8 +7,8 @@ TARGET := $(shell echo $${PWD\#\#*/})
 .DEFAULT_GOAL: $(TARGET)
 
 # These will be provided to the target
-VERSIONNAME := HMS-Prince-(1670)
-VERSION := 0.5
+VERSIONNAME := HMS-Royal-James-(1671)
+VERSION := 0.6
 BUILD := `git rev-parse HEAD`
 BUILDTIME := `date +'%y.%m.%d/%H:%M:%S'`
 

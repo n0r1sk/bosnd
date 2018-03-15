@@ -247,13 +247,8 @@
 		{
 			"checksumSHA1": "GWlM3d2vPYyNATtTFgftS10/A9w=",
 			"path": "github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg",
-<<<<<<< HEAD
 			"revision": "e4aa40a9169a88835b849a6efb71e05dc04b88f0",
 			"revisionTime": "2018-03-12T11:28:59Z"
-=======
-			"revision": "89604d197083d4781071d3c65855d24ecfb0a563",
-			"revisionTime": "2018-01-10T21:49:58Z"
->>>>>>> v0.5
 		},
 		{
 			"checksumSHA1": "YU+/K48IMawQnToO4ETE6a+hhj4=",

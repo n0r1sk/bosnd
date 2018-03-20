@@ -349,6 +349,8 @@ func getservicesofnet(config *Config) error {
 					nn = n.Name
 				}
 			}
+		} else {
+			nid = nl[0].ID
 		}
 
 		log.Debug("Matched network: " + nn)

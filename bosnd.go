@@ -237,10 +237,14 @@ func getservicelabel(ctx context.Context, servicename string) (map[string]string
 	}
 	s, _ := dockerclient.ServiceList(ctx, opts)
 
+	if len(s) == 0 {
+		return map[string]string{}, errors.New("no services found")
+	}
+
 	labels := s[0].Spec.Labels
 
 	if len(labels) == 0 {
-		return labels, errors.New("Service " + servicename + " has no context label!")
+		return labels, errors.New("ervice " + servicename + " has no context label")
 	}
 
 	return labels, nil

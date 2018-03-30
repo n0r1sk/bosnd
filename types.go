@@ -25,6 +25,12 @@ type rc struct {
 	config *Config
 }
 
+// Record is the A record
+type Record struct {
+	Host string `json:"host"`
+	TTL  int    `json:"ttl"`
+}
+
 // Endpoint Defines an endpoint (Docker task container)
 type Endpoint struct {
 	Hostname string
@@ -66,13 +72,6 @@ type Config struct {
 		Reload      []string
 		Processname string
 	}
-	Pdns struct {
-		Apiurl       string // this is the enable Pdns config switch
-		Apikey       string
-		Ipaddress    string
-		Domainprefix string
-		Domainzone   string
-	}
 	Templates map[string]Configfilepair
 	Swarm     struct {
 		Cacertpem     string
@@ -86,11 +85,15 @@ type Config struct {
 		Networks      []string // this is the enable Swarm config switch
 	}
 	Kubernetes struct {
-		Updateazuredns bool
-		Domainprefix   string
-		Domainzone     string
-		Namespace      string // Enable switch is the existence of the environmet variable MY_NAMESPACE
-		Apps           *map[string][]Pod
+		Domainprefix string
+		Domainzone   string
+		Namespace    string // Enable switch is the existence of the environmet variable MY_NAMESPACE
+		Apps         *map[string][]Pod
+	}
+	Coredns struct {
+		TTL  int      // The ttl for the dns record set
+		Path string   // The CoreDNS path
+		Etcd []string // ETCD endpoints used for Coredns, this is the enable switch
 	}
 	Prometheus struct {
 		Port string // this is the enable Prometheus config switch
@@ -99,7 +102,6 @@ type Config struct {
 		Port string
 		Key  string // this is the enable Control config switch
 	}
-
 	Cron struct {
 		Crontab string // this is the enable Cron config switch
 	}

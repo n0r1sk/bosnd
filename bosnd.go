@@ -22,6 +22,7 @@ import (
 	"crypto/md5"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -41,33 +42,49 @@ import (
 
 	"golang.org/x/net/context"
 
+	// golang profiling
 	_ "net/http/pprof"
 
+	// docker client
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
+
+	// colorize output
 	"github.com/logrusorgru/aurora"
+
+	// cron library
 	"github.com/robfig/cron"
 
+	// prometheus interface
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
+	// kubernetes client
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 
-	"github.com/Azure/azure-sdk-for-go/services/dns/mgmt/2017-09-01/dns"
-	"github.com/Azure/go-autorest/autorest/azure/auth"
-	"github.com/Azure/go-autorest/autorest/to"
+	// etcd client
+	ec "github.com/coreos/etcd/client"
 
+	// logging
 	log "github.com/sirupsen/logrus"
+
+	// commandline command and flag parsing
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 var mainloop bool
 var ctrlcmd *exec.Cmd
 var dockerclient *client.Client
 var configfile string
+
+// Global ETCD client
+var etcdclient ec.KeysAPI
+
+// Global Kubernetes client
 var kubeclient *kubernetes.Clientset
 
 // Version is the version number used by the make script
@@ -574,86 +591,197 @@ func getkubernetespods(config *Config) error {
 	return nil
 }
 
-func azuredns(config *Config) error {
+func corednsset(config *Config) error {
+	// preapare domainname for etcd
+	domain := config.Kubernetes.Domainprefix + "." + config.Kubernetes.Domainzone
+	sdomain := strings.Split(domain, ".")
+	var dnsrecord string
+	dnsrecord = dnsrecord + "/dns-internal"
 
-	// check if all env variables are here
-
-	azuresubscriptionid := os.Getenv("AZURE_SUBSCRIPTION_ID")
-	azureclientid := os.Getenv("AZURE_CLIENT_ID")
-	azureclientsecret := os.Getenv("AZURE_CLIENT_SECRET")
-	azuretenantid := os.Getenv("AZURE_TENANT_ID")
-	azureresourcegroup := os.Getenv("AZURE_RESOURCE_GROUP")
-	mypodip := os.Getenv("MY_POD_IP")
-
-	if azuresubscriptionid == "" ||
-		azureclientid == "" ||
-		azureclientsecret == "" ||
-		azuretenantid == "" ||
-		azureresourcegroup == "" ||
-		mypodip == "" {
-		return errors.New("Not all Azure env variables are set")
+	for i := len(sdomain) - 1; i >= 0; i-- {
+		dnsrecord = dnsrecord + "/" + sdomain[i]
 	}
 
-	vdnsClient := dns.NewRecordSetsClient(azuresubscriptionid)
-	authorizer, err := auth.NewAuthorizerFromEnvironment()
-
-	if err == nil {
-		vdnsClient.Authorizer = authorizer
+	// prepare pod ip of loadbalancer
+	host := os.Getenv("MY_POD_IP")
+	if host == "" {
+		return errors.New("environment variable MY_POD_IP not set")
 	}
 
-	res, err := vdnsClient.Get(context.Background(), azureresourcegroup, config.Kubernetes.Domainzone, config.Kubernetes.Domainprefix, dns.A)
-
-	if err != nil {
-		// if the StatusCode = 404 we can proceed, because we are writing a new record
-		if strings.Contains(err.Error(), "404") {
-			log.Warn("Not found A Rec: " + config.Kubernetes.Domainprefix + " in " + config.Kubernetes.Domainzone)
-		} else {
-			return err
-		}
-	} else {
-		meta := *res.RecordSetProperties.Metadata
-		for _, v := range *res.RecordSetProperties.ARecords {
-			log.Info("Previous IP Address: " + *v.Ipv4Address + " Last change: " + *meta["lastchangehuman"])
-		}
+	// prepare ttl of record
+	ttl := config.Coredns.TTL
+	if ttl == 0 {
+		ttl = 60
 	}
 
-	log.Info("Creating A Rec: " + config.Kubernetes.Domainprefix + " in " + config.Kubernetes.Domainzone)
+	// prepare record
+	var r Record
+	r.Host = host
+	r.TTL = ttl
+	log.Debug(r)
 
-	t := time.Now()
-	meta := make(map[string]*string)
-	lastchangeepoch := strconv.FormatInt(t.UnixNano()/int64(time.Millisecond), 10)
-	lastchangehuman := t.Format("2006-01-02T15:04:05.999-07:00")
-	meta["lastchangeepoch"] = &lastchangeepoch
-	meta["lastchangehuman"] = &lastchangehuman
-	meta["namespace"] = &config.Kubernetes.Namespace
-
-	rs := dns.RecordSet{
-		Name: to.StringPtr(config.Kubernetes.Domainprefix),
-		RecordSetProperties: &dns.RecordSetProperties{
-			Metadata: &meta,
-			TTL:      to.Int64Ptr(60),
-			//Metadata: &make(map["lastchange"]strconv.FormatInt(time.Now().UnixNano() / int64(time.Millisecond, 10)))
-			ARecords: &[]dns.ARecord{
-				{
-					Ipv4Address: to.StringPtr(mypodip),
-				},
-			},
-		},
-	}
-
-	rrs, err := vdnsClient.CreateOrUpdate(context.Background(),
-		azureresourcegroup,
-		config.Kubernetes.Domainzone, config.Kubernetes.Domainprefix, dns.A, rs, "", "")
-
+	b, err := json.Marshal(r)
 	if err != nil {
 		return err
 	}
-	rrsmeta := *rrs.RecordSetProperties.Metadata
-	for _, v := range *rrs.RecordSetProperties.ARecords {
-		log.Info("Actual IP Address: " + *v.Ipv4Address + " Changed at: " + *rrsmeta["lastchangehuman"])
+
+	value := string(b[:])
+
+	// set "/foo" key with "bar" value
+	resp, err := etcdclient.Set(context.Background(), dnsrecord, value, nil)
+	if err != nil {
+		return err
 	}
 
+	// print common key info
+	log.Infof("Set is done. Metadata is %q", resp)
+
+	// get "/foo" key's value
+	resp, err = etcdclient.Get(context.Background(), dnsrecord, nil)
+	if err != nil {
+		return err
+	}
+
+	// print common key info
+	log.Infof("Get is done. Metadata is %q", resp)
+
+	// print value
+	log.Infof("%q key has %q value", resp.Node.Key, resp.Node.Value)
+
 	return nil
+}
+
+func prepareetcdclient(config *Config) error {
+
+	endpoints := config.Coredns.Etcd
+	clientcert := os.Getenv("COREDNS_ETCD_CERT")
+	clientcertkey := os.Getenv("COREDNS_ETCD_CERTKEY")
+	ca := os.Getenv("COREDNS_ETCD_CA")
+
+	if clientcertkey == "" {
+		return errors.New("environment variable COREDNS_ETCD_CERTKEY not set")
+	}
+
+	if clientcert == "" {
+		return errors.New("environment variable COREDNS_ETCD_CERT not set")
+	}
+
+	if ca == "" {
+		return errors.New("environment variable COREDNS_ETCD_CA not set")
+	}
+
+	// Load client cert
+	cert, err := tls.LoadX509KeyPair(clientcert, clientcertkey)
+	if err != nil {
+		return err
+	}
+
+	// Load CA cert
+	caCert, err := ioutil.ReadFile(ca)
+	if err != nil {
+		return err
+	}
+
+	// Refresh the CA pool
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
+
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		RootCAs:      caCertPool,
+	}
+
+	tr := &http.Transport{
+		MaxIdleConns:       10,
+		IdleConnTimeout:    30 * time.Second,
+		DisableCompression: true,
+		TLSClientConfig:    tlsConfig,
+	}
+
+	cfg := ec.Config{
+		Endpoints: endpoints,
+		Transport: tr,
+		// set timeout per request to fail fast when the target endpoint is unavailable
+		HeaderTimeoutPerRequest: time.Second,
+	}
+	c, err := ec.New(cfg)
+	if err != nil {
+		return err
+	}
+	etcdclient = ec.NewKeysAPI(c)
+
+	return nil
+
+}
+
+// VersionCommand Context for "ls" command
+type VersionCommand struct {
+}
+
+// RunCommand runs the bosnd
+type RunCommand struct {
+	Config string
+}
+
+func (l *RunCommand) run(c *kingpin.ParseContext) error {
+	if l.Config == "" {
+		configfile = "/config/bosnd.yml"
+	} else {
+		configfile = l.Config
+	}
+	return nil
+}
+
+func (l *VersionCommand) run(c *kingpin.ParseContext) error {
+	type v struct {
+		Version     string
+		Versionname string
+		Build       string
+		Buildtime   string
+	}
+
+	actversion := v{}
+	actversion.Build = Build
+
+	if Version == "" {
+		actversion.Version = "Manual Build!"
+	} else {
+		actversion.Version = Version
+	}
+
+	if Buildtime == "" {
+		actversion.Buildtime = time.Now().String()
+	} else {
+		actversion.Buildtime = Buildtime
+	}
+
+	actversion.Versionname = Versionname
+
+	tmpl, err := template.New("").Parse(versionTemplate)
+	if err != nil {
+		log.Warn(err)
+	}
+
+	var tpl bytes.Buffer
+	tmpl.Execute(&tpl, actversion)
+	if err != nil {
+		log.Warn(err)
+	}
+
+	fmt.Print(tpl.String() + "\n")
+	os.Exit(0)
+	return nil
+}
+
+func configureVersionCommand(app *kingpin.Application) {
+	c := &VersionCommand{}
+	app.Command("version", "Show version.").Action(c.run)
+}
+
+func configureRunCommand(app *kingpin.Application) {
+	c := &RunCommand{}
+	run := app.Command("run", "Run the bosnd").Action(c.run)
+	run.Flag("config", "Specify the config file, default /config/bosnd.yml").Short('c').StringVar(&c.Config)
 }
 
 func main() {
@@ -669,56 +797,15 @@ func main() {
 	log.SetFormatter(customFormatter)
 	log.SetOutput(os.Stdout)
 
-	f := flgs{}
+	// command line parsing
+	app := kingpin.New("bosnd", "The boatswain daemon")
+	configureVersionCommand(app)
+	configureRunCommand(app)
 
-	f.c = flag.String("c", "/config/bosnd.yml", "config file including path")
-	f.b = flag.Bool("b", false, "Print the version and exit")
+	kingpin.MustParse(app.Parse(os.Args[1:]))
 
-	flag.Parse()
+	log.Info(configfile)
 
-	if *f.b == true {
-
-		type v struct {
-			Version     string
-			Versionname string
-			Build       string
-			Buildtime   string
-		}
-
-		actversion := v{}
-		actversion.Build = Build
-
-		if Version == "" {
-			actversion.Version = "Manual Build!"
-		} else {
-			actversion.Version = Version
-		}
-
-		if Buildtime == "" {
-			actversion.Buildtime = time.Now().String()
-		} else {
-			actversion.Buildtime = Buildtime
-		}
-
-		actversion.Versionname = Versionname
-
-		tmpl, err := template.New("").Parse(versionTemplate)
-		if err != nil {
-			log.Warn(err)
-		}
-
-		var tpl bytes.Buffer
-		tmpl.Execute(&tpl, actversion)
-		if err != nil {
-			log.Warn(err)
-		}
-
-		fmt.Print(tpl.String() + "\n")
-
-		os.Exit(0)
-	}
-
-	configfile = *f.c
 	config, ok := ReadConfigfile(configfile)
 	if !ok {
 		log.Warn(aurora.Red("Error during config parsing, yet continuing!"))
@@ -739,11 +826,6 @@ func main() {
 
 	log.Debug("Configfile Keys and Values: ", config)
 
-	// check if PDNS configuration is enabled
-	if config.Pdns.Apikey != "" {
-		updatepdns(*config)
-	}
-
 	// check if Prometheus is enabled
 	if config.Prometheus.Port != "" {
 		go prom(config)
@@ -763,9 +845,17 @@ func main() {
 		go api(config)
 	}
 
-	// this will loop forever
-	mainloop = true
-	var changed = false
+	// check if CoreDNS is enabled, prepare the ETCD client, set the DNS
+	if len(config.Coredns.Etcd) != 0 {
+		err := prepareetcdclient(config)
+		if err != nil {
+			log.Fatal(aurora.Red(err))
+		}
+		err = corednsset(config)
+		if err != nil {
+			log.Fatal(aurora.Red(err))
+		}
+	}
 
 	// create a cron job
 	if config.Cron.Crontab != "" {
@@ -778,17 +868,11 @@ func main() {
 		log.Info("Crontab controled reload started!")
 	}
 
-	for mainloop == true {
+	// this will loop forever
+	mainloop = true
+	var changed = false
 
-		// update Azure DNS with pod ip if enabled
-		if config.Kubernetes.Updateazuredns == true {
-			err := azuredns(config)
-			if err != nil {
-				log.Warn(aurora.Red(err))
-				time.Sleep(time.Duration(config.Checkintervall) * time.Second)
-				continue
-			}
-		}
+	for mainloop == true {
 
 		// reread config file
 		ok := ReReadConfigfile(configfile, config)

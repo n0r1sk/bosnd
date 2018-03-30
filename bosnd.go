@@ -259,10 +259,14 @@ func getservicelabel(ctx context.Context, servicename string) (map[string]string
 	}
 	s, _ := dockerclient.ServiceList(ctx, opts)
 
+	if len(s) == 0 {
+		return map[string]string{}, errors.New("no services found")
+	}
+
 	labels := s[0].Spec.Labels
 
 	if len(labels) == 0 {
-		return labels, errors.New("Service " + servicename + " has no context label!")
+		return labels, errors.New("ervice " + servicename + " has no context label")
 	}
 
 	return labels, nil
@@ -360,9 +364,24 @@ func getservicesofnet(config *Config) error {
 			continue
 		}
 
-		log.Debug(nl[0].ID)
+		log.Debug(nl)
 
-		n, err := dockerclient.NetworkInspect(ctx, nl[0].ID, types.NetworkInspectOptions{Verbose: true})
+		var nid string
+		var nn string
+		if len(nl) > 1 {
+			for _, n := range nl {
+				if n.Name == netwn {
+					nid = n.ID
+					nn = n.Name
+				}
+			}
+		} else {
+			nid = nl[0].ID
+		}
+
+		log.Debug("Matched network: " + nn)
+
+		n, err := dockerclient.NetworkInspect(ctx, nid, types.NetworkInspectOptions{Verbose: true})
 
 		if err != nil {
 			return err

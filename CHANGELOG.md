@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [v0.7] - 2018.03.20
+### Changed
+- Fix error handling if only no service on network is started
+
+## [v0.6] - 2018.03.06
+### Changed
+- Fix Docker filter handling which causes return of multiple services of the same name
+
+## [v0.5] - 2018.02.03
+### Changed
+- Minor code cleanup
+
 ## [v0.4] - 2018.02.01
 ### Changed
 - Fixed backend shuffling
@@ -37,7 +49,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Removed
 
-[Unreleased]: https://github.com/n0r1sk/bosnd/compare/v0.4...HEAD
+[Unreleased]: https://github.com/n0r1sk/bosnd/compare/v0.7...HEAD
+[v0.7]: https://github.com/n0r1sk/bosnd/compare/v0.6...v0.7
+[v0.6]: https://github.com/n0r1sk/bosnd/compare/v0.5...v0.6
+[v0.5]: https://github.com/n0r1sk/bosnd/compare/v0.4...v0.5
 [v0.4]: https://github.com/n0r1sk/bosnd/compare/v0.3...v0.4
 [v0.3]: https://github.com/n0r1sk/bosnd/compare/v0.2...v0.3
 [v0.2]: https://github.com/n0r1sk/bosnd/compare/v0.1...v0.2

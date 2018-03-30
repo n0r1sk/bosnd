@@ -847,6 +847,7 @@ func main() {
 
 	// check if CoreDNS is enabled, prepare the ETCD client, set the DNS
 	if len(config.Coredns.Etcd) != 0 {
+		log.Info(aurora.Green("CoreDNS enabled"))
 		err := prepareetcdclient(config)
 		if err != nil {
 			log.Fatal(aurora.Red(err))

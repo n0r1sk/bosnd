@@ -67,33 +67,23 @@ type Config struct {
 	Debug          bool
 	Debugport      string
 	Checkintervall int64
+	Templates      map[string]Configfilepair
 	Cmd            struct {
 		Start       []string
 		Reload      []string
 		Processname string
 	}
-	Templates map[string]Configfilepair
-	Swarm     struct {
-		Cacertpem     string
-		Clientcertpem string
-		Clientkeypem  string
-		Domainprefix  string
-		Domainzone    string
-		Managerurl    string
-		Usesocket     bool
-		Services      *[]Service
-		Networks      []string // this is the enable Swarm config switch
-	}
 	Kubernetes struct {
 		Domainprefix string
 		Domainzone   string
 		Namespace    string // Enable switch is the existence of the environmet variable MY_NAMESPACE
-		Apps         *map[string][]Pod
+		Services     *map[string][]Pod
 	}
 	Coredns struct {
-		TTL  int      // The ttl for the dns record set
-		Path string   // The CoreDNS path
-		Etcd []string // ETCD endpoints used for Coredns, this is the enable switch
+		Arecord string   // The A-record which is need to be set
+		TTL     int      // The ttl for the dns record set, default 60 seconds
+		Path    string   // The CoreDNS path
+		Etcd    []string // ETCD endpoints used for Coredns, this is the enable switch
 	}
 	Prometheus struct {
 		Port string // this is the enable Prometheus config switch

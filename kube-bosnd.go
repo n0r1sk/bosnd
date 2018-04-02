@@ -57,6 +57,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	// kubernetes client
+	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -331,7 +332,14 @@ func getkubernetespods(config *Config) error {
 		return errors.New("Failed to create Kubernetes Client")
 	}
 
-	pods, err := kubeclient.CoreV1().Pods(config.Kubernetes.Namespace).List(metav1.ListOptions{})
+	var pods *v1.PodList
+	var err error
+	if config.Kubernetes.Labelselector != "" {
+		pods, err = kubeclient.CoreV1().Pods(config.Kubernetes.Namespace).List(metav1.ListOptions{LabelSelector: config.Kubernetes.Labelselector})
+	} else {
+		pods, err = kubeclient.CoreV1().Pods(config.Kubernetes.Namespace).List(metav1.ListOptions{})
+	}
+
 	if err != nil {
 		panic(err.Error())
 	}
@@ -343,7 +351,7 @@ func getkubernetespods(config *Config) error {
 
 	for _, p := range pods.Items {
 
-		if p.Labels["context"] == "" || p.Labels["service"] == "" {
+		if p.Labels["kbds"] == "" {
 			continue
 		}
 
@@ -354,7 +362,7 @@ func getkubernetespods(config *Config) error {
 		po.Address = p.Status.PodIP
 
 		// add to pod to app
-		services[p.Labels["service"]] = append(services[p.Labels["service"]], po)
+		services[p.Labels["kbds"]] = append(services[p.Labels["kbds"]], po)
 
 		log.Debug(po.Hostname + " " + po.Address)
 	}
@@ -560,7 +568,6 @@ func (l *VersionCommand) run(c *kingpin.ParseContext) error {
 	}
 
 	fmt.Print(tpl.String() + "\n")
-	os.Exit(0)
 	return nil
 }
 
@@ -643,8 +650,6 @@ func main() {
 			log.Fatal(aurora.Red(err))
 		}
 	}
-
-	os.Exit(0)
 
 	// create a cron job
 	if config.Cron.Crontab != "" {

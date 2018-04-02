@@ -74,10 +74,11 @@ type Config struct {
 		Processname string
 	}
 	Kubernetes struct {
-		Domainprefix string
-		Domainzone   string
-		Namespace    string // Enable switch is the existence of the environmet variable MY_NAMESPACE
-		Services     *map[string][]Pod
+		Labelselector string // Optional selector
+		Domainprefix  string
+		Domainzone    string
+		Namespace     string // Enable switch is the existence of the environmet variable MY_NAMESPACE
+		Services      *map[string][]Pod
 	}
 	Coredns struct {
 		Arecord string   // The A-record which is need to be set

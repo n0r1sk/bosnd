@@ -74,6 +74,7 @@ type Config struct {
 		Processname string
 	}
 	Kubernetes struct {
+		Kubeconfig    string // Path to the Kubeconfig
 		Labelselector string // Optional selector
 		Domainprefix  string
 		Domainzone    string

@@ -31,7 +31,6 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
-	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
@@ -286,7 +285,7 @@ func homeDir() string {
 	return os.Getenv("USERPROFILE") // windows
 }
 
-func getkubernetesclient() bool {
+func getkubernetesclient(config *Config) bool {
 
 	log.Debug("Testing Kubeclient")
 	ok := false
@@ -294,13 +293,8 @@ func getkubernetesclient() bool {
 	for ok == false {
 		var err error
 
-		var kubeconfig string
-		if home := homeDir(); home != "" {
-			kubeconfig = filepath.Join(home, ".kube", "config")
-		}
-
 		// use the current context in kubeconfig
-		kconfig, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+		kconfig, err := clientcmd.BuildConfigFromFlags("", config.Kubernetes.Kubeconfig)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -327,7 +321,11 @@ func getkubernetesclient() bool {
 
 func getkubernetespods(config *Config) error {
 
-	ok := getkubernetesclient()
+	if config.Kubernetes.Kubeconfig == "" {
+		return errors.New("Kuberntes client config not set in config")
+	}
+
+	ok := getkubernetesclient(config)
 	if ok != true {
 		return errors.New("Failed to create Kubernetes Client")
 	}

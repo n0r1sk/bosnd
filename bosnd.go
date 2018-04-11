@@ -440,6 +440,7 @@ func parsecmdline() *flgs {
 
 	f.c = flag.String("c", "/config/bosnd.yml", "config file including path")
 	f.v = flag.Bool("v", false, "Print the version and exit")
+	f.t = flag.Bool("t", false, "Create config files from template only")
 
 	flag.Parse()
 
@@ -549,14 +550,35 @@ func main() {
 
 	log.Debug("Configfile Keys and Values: ", config)
 
-	// check if PDNS configuration is enabled
-	if config.Pdns.Apikey != "" {
-		updatepdns(*config)
-	}
+	// if t flaf is set, do not run additional configs on run
+	if *fl.t == false {
 
-	// check if Prometheus is enabled
-	if config.Prometheus.Port != "" {
-		go prom(config)
+		// check if PDNS configuration is enabled
+		if config.Pdns.Apikey != "" {
+			updatepdns(*config)
+		}
+
+		// check if Prometheus is enabled
+		if config.Prometheus.Port != "" {
+			go prom(config)
+		}
+
+		// only take the control into accout if it is configured
+		if config.Control.Key != "" {
+			go api(config)
+		}
+
+		// create a cron job
+		if config.Cron.Crontab != "" {
+			c := cron.New()
+			c.AddFunc(config.Cron.Crontab, func() {
+				reloadprocess(config)
+				log.Info("Sevice reloaded by cronjob")
+			})
+			c.Start()
+			log.Info("Crontab controled reload started!")
+		}
+
 	}
 
 	// only take the swarm into accout if it is configured
@@ -568,25 +590,9 @@ func main() {
 		}
 	}
 
-	// only take the control into accout if it is configured
-	if config.Control.Key != "" {
-		go api(config)
-	}
-
 	// this will loop forever
 	mainloop = true
 	var changed = false
-
-	// create a cron job
-	if config.Cron.Crontab != "" {
-		c := cron.New()
-		c.AddFunc(config.Cron.Crontab, func() {
-			reloadprocess(config)
-			log.Info("Sevice reloaded by cronjob")
-		})
-		c.Start()
-		log.Info("Crontab controled reload started!")
-	}
 
 	for mainloop == true {
 		// reread config file
@@ -611,6 +617,12 @@ func main() {
 
 		// process config
 		changed = writeconfig(config)
+
+		// config run only
+		if *fl.t == true {
+			log.Infof("Config run only! Finished with changed status: %t", changed)
+			os.Exit(1)
+		}
 
 		if changed == true {
 			if isprocessrunningps(config) {

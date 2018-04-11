@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [v0.9] - 2018.04.11
+### Added
+- Flag (-t) to allow a dry run which creates the config files from the template without starting the service
+
+## [v0.8] - 2018.03.28
+### Changed
+- Small typo in log output
+
 ## [v0.7] - 2018.03.20
 ### Changed
 - Fix error handling if only no service on network is started
@@ -49,7 +57,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Removed
 
-[Unreleased]: https://github.com/n0r1sk/bosnd/compare/v0.7...HEAD
+[Unreleased]: https://github.com/n0r1sk/bosnd/compare/v0.9...HEAD
+[v0.9]: https://github.com/n0r1sk/bosnd/compare/v0.8...v0.9
+[v0.8]: https://github.com/n0r1sk/bosnd/compare/v0.7...v0.8
 [v0.7]: https://github.com/n0r1sk/bosnd/compare/v0.6...v0.7
 [v0.6]: https://github.com/n0r1sk/bosnd/compare/v0.5...v0.6
 [v0.5]: https://github.com/n0r1sk/bosnd/compare/v0.4...v0.5

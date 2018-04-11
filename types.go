@@ -19,6 +19,7 @@ package main
 type flgs struct {
 	c *string
 	v *bool
+	t *bool
 }
 
 type rc struct {

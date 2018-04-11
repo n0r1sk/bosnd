@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [v1.0] - 2018.04.11
+### Fix
+- Workaround for Docker Swarm network problems, eg Service is still on the network, but does not exist anymore in Swarm. See issue https://github.com/moby/moby/issues/33790
+
 ## [v0.9] - 2018.04.11
 ### Added
 - Flag (-t) to allow a dry run which creates the config files from the template without starting the service
@@ -57,7 +61,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Removed
 
-[Unreleased]: https://github.com/n0r1sk/bosnd/compare/v0.9...HEAD
+[Unreleased]: https://github.com/n0r1sk/bosnd/compare/v1.0...HEAD
+[v0.9]: https://github.com/n0r1sk/bosnd/compare/v0.9...v1.0
 [v0.9]: https://github.com/n0r1sk/bosnd/compare/v0.8...v0.9
 [v0.8]: https://github.com/n0r1sk/bosnd/compare/v0.7...v0.8
 [v0.7]: https://github.com/n0r1sk/bosnd/compare/v0.6...v0.7

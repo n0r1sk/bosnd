@@ -22,7 +22,6 @@ import (
 	"crypto/md5"
 	"crypto/tls"
 	"crypto/x509"
-	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -228,7 +227,7 @@ func writeconfig(config *Config) (changed bool) {
 
 }
 
-func getservicelabel(ctx context.Context, servicename string) (map[string]string, error) {
+func getservicelabel(ctx context.Context, servicename string) map[string]string {
 	f := filters.NewArgs()
 	f.Add("name", servicename)
 
@@ -237,17 +236,20 @@ func getservicelabel(ctx context.Context, servicename string) (map[string]string
 	}
 	s, _ := dockerclient.ServiceList(ctx, opts)
 
+	// it can happen, that there is a service on the network which does not exist in the swarm
 	if len(s) == 0 {
-		return map[string]string{}, errors.New("no services found")
+		log.Warn("Docker Swarm engine error: service " + servicename + " not found!")
+		return map[string]string{}
 	}
 
 	labels := s[0].Spec.Labels
 
 	if len(labels) == 0 {
-		return labels, errors.New("ervice " + servicename + " has no context label")
+		log.Warn("Docker Swarm engine warning: service " + servicename + " no labels defined!")
+		return map[string]string{}
 	}
 
-	return labels, nil
+	return labels
 }
 
 func getorrefreshdockerclient(config *Config) bool {
@@ -355,6 +357,7 @@ func getservicesofnet(config *Config) error {
 			}
 		} else {
 			nid = nl[0].ID
+			nn = nl[0].Name
 		}
 
 		log.Debug("Matched network: " + nn)
@@ -373,10 +376,10 @@ func getservicesofnet(config *Config) error {
 			ms := Service{}
 			ms.Name = k
 
-			ms.Labels, err = getservicelabel(ctx, ms.Name)
+			ms.Labels = getservicelabel(ctx, ms.Name)
 
-			if err != nil {
-				return err
+			if len(ms.Labels) == 0 {
+				continue
 			}
 
 			// get the ips and the task slot to slice
